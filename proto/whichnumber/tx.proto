@@ -1,13 +1,90 @@
 syntax = "proto3";
 package zale144.whichnumber.whichnumber;
 
-// this line is used by starport scaffolding # proto/tx/import
-
 option go_package = "github.com/zale144/whichnumber/x/whichnumber/types";
 
-// Msg defines the Msg service.
+// this line is used by starport scaffolding # proto/tx/import
+
+import "cosmos/base/v1beta1/coin.proto";
+import "gogoproto/gogo.proto";
+import "whichnumber/types.proto";
+import "whichnumber/params.proto";
+
+// Msg defines the module Msg service.
 service Msg {
-    // this line is used by starport scaffolding # proto/tx/rpc
+  rpc NewGame(MsgNewGame) returns (MsgNewGameResponse);
+
+  rpc CommitNumber(MsgCommitNumber) returns (MsgCommitNumberResponse);
+
+  rpc RevealNumber(MsgRevealNumber) returns (MsgRevealNumberResponse);
+
+  // UpdateParams updates the module parameters.
+  rpc UpdateParams(MsgUpdateParams) returns (MsgUpdateParamsResponse);
+
+  // this line is used by starport scaffolding # proto/tx/rpc
 }
+
+message MsgNewGame {
+  string creator = 1; // creator is the address of the player that created the game.
+
+  // secret_number is the number to guess.
+  int64 secret_number = 2;
+
+  // reward is the amount to be distributed to the winner(s).
+  cosmos.base.v1beta1.Coin reward = 3 [(gogoproto.nullable) = false];
+
+  // entry_fee is the amount to put into stake for the game.
+  cosmos.base.v1beta1.Coin entry_fee = 4 [(gogoproto.nullable) = false];
+}
+
+message MsgNewGameResponse {
+  // game_id is the ID of the created game.
+  int64 game_id = 1;
+}
+
+message MsgCommitNumber {
+  string player = 1;
+
+  // game_id is the ID of the game to commit the number to.
+  int64 game_id = 2;
+
+  // commit is the hex encoded commitment to the number.
+  // SHA256("32byte-salt" + "number")
+  string commit = 3;
+}
+
+message MsgCommitNumberResponse {}
+
+message MsgRevealNumber {
+  string player = 1;
+
+  // game_id is the ID of the game to reveal the number for.
+  int64 game_id = 2;
+
+  // number is the number to reveal.
+  int64 number = 3;
+
+  // salt is the salt used to create the commitment.
+  string salt = 4;
+}
+
+message MsgRevealNumberResponse {}
+
+
+// MsgUpdateParams is the Msg/UpdateParams request type.
+message MsgUpdateParams {
+  // authority is the address that controls the module
+  // NOTE: Defaults to the governance module unless overwritten.
+  string authority = 1;
+
+  // params defines the module parameters to update.
+  // NOTE: All parameters must be supplied.
+  Params params = 2
+  [ (gogoproto.nullable) = false ];
+}
+
+// MsgUpdateParamsResponse defines the response structure for executing a
+// MsgUpdateParams message.
+message MsgUpdateParamsResponse {}
 
 // this line is used by starport scaffolding # proto/tx/message

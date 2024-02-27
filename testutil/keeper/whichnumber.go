@@ -2,6 +2,7 @@ package keeper
 
 import (
 	"testing"
+	"time"
 
 	"github.com/cosmos/cosmos-sdk/codec"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
@@ -14,10 +15,15 @@ import (
 	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
 	tmdb "github.com/tendermint/tm-db"
 	"github.com/zale144/whichnumber/x/whichnumber/keeper"
+	"github.com/zale144/whichnumber/x/whichnumber/testutil"
 	"github.com/zale144/whichnumber/x/whichnumber/types"
 )
 
 func WhichnumberKeeper(t testing.TB) (*keeper.Keeper, sdk.Context) {
+	return WhichNumberKeeperWithMocks(t, nil)
+}
+
+func WhichNumberKeeperWithMocks(t testing.TB, bank *testutil.MockBankKeeper) (*keeper.Keeper, sdk.Context) {
 	storeKey := sdk.NewKVStoreKey(types.StoreKey)
 	memStoreKey := storetypes.NewMemoryStoreKey(types.MemStoreKey)
 
@@ -41,9 +47,13 @@ func WhichnumberKeeper(t testing.TB) (*keeper.Keeper, sdk.Context) {
 		storeKey,
 		memStoreKey,
 		paramsSubspace,
+		bank,
 	)
 
-	ctx := sdk.NewContext(stateStore, tmproto.Header{}, false, log.NewNopLogger())
+	header := tmproto.Header{
+		Time: time.Now().Add(5 * time.Second),
+	}
+	ctx := sdk.NewContext(stateStore, header, false, log.NewNopLogger())
 
 	// Initialize params
 	k.SetParams(ctx, types.DefaultParams())

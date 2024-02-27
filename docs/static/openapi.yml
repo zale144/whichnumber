@@ -29456,10 +29456,344 @@ paths:
                   additionalProperties: {}
       tags:
         - Query
-  /zale144/whichnumber/whichnumber/params:
+  /zale144/whichnumber/games:
+    get:
+      operationId: Zale144WhichnumberWhichnumberGetGames
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            type: object
+            properties:
+              games:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: string
+                      format: int64
+                    creator:
+                      type: string
+                      title: Address of the player who created the game
+                    secret_number:
+                      type: string
+                      format: int64
+                      title: The secret number that the players are guessing
+                    player_commits:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          commit:
+                            type: string
+                            title: 'hex encoded sha256 of "salt:number"'
+                          player_address:
+                            type: string
+                            title: Address of the player who submitted the guess
+                          created_at:
+                            type: string
+                            format: date-time
+                      title: The guesses submitted by the players
+                    player_reveals:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          player_address:
+                            type: string
+                          number:
+                            type: string
+                            format: int64
+                          salt:
+                            type: string
+                            title: hex encoded 32 bytes salt
+                          created_at:
+                            type: string
+                            format: date-time
+                      title: The reveals submitted by the players
+                    reward:
+                      title: The reward for the winner
+                      type: object
+                      properties:
+                        denom:
+                          type: string
+                        amount:
+                          type: string
+                      description: >-
+                        Coin defines a token with a denomination and an amount.
+
+
+                        NOTE: The amount field is an Int which implements the
+                        custom method
+
+                        signatures required by gogoproto.
+                    entry_fee:
+                      type: object
+                      properties:
+                        denom:
+                          type: string
+                        amount:
+                          type: string
+                      description: >-
+                        Coin defines a token with a denomination and an amount.
+
+
+                        NOTE: The amount field is an Int which implements the
+                        custom method
+
+                        signatures required by gogoproto.
+                    commit_timeout:
+                      type: string
+                      format: date-time
+                    reveal_timeout:
+                      type: string
+                      format: date-time
+                    beforeId:
+                      type: string
+                      format: int64
+                    afterId:
+                      type: string
+                      format: int64
+              pagination:
+                type: object
+                properties:
+                  next_key:
+                    type: string
+                    format: byte
+                    title: |-
+                      next_key is the key to be passed to PageRequest.key to
+                      query the next page most efficiently
+                  total:
+                    type: string
+                    format: uint64
+                    title: >-
+                      total is total number of results available if
+                      PageRequest.count_total
+
+                      was set, its value is undefined otherwise
+                description: >-
+                  PageResponse is to be embedded in gRPC response messages where
+                  the
+
+                  corresponding request message has used PageRequest.
+
+                   message SomeResponse {
+                           repeated Bar results = 1;
+                           PageResponse page = 2;
+                   }
+            description: >-
+              QueryGamesResponse is the response type for the Query/Games RPC
+              method.
+        default:
+          description: An unexpected error response.
+          schema:
+            type: object
+            properties:
+              code:
+                type: integer
+                format: int32
+              message:
+                type: string
+              details:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    '@type':
+                      type: string
+                  additionalProperties: {}
+      parameters:
+        - name: pagination.key
+          description: |-
+            key is a value returned in PageResponse.next_key to begin
+            querying the next page most efficiently. Only one of offset or key
+            should be set.
+          in: query
+          required: false
+          type: string
+          format: byte
+        - name: pagination.offset
+          description: >-
+            offset is a numeric offset that can be used when key is unavailable.
+
+            It is less efficient than using key. Only one of offset or key
+            should
+
+            be set.
+          in: query
+          required: false
+          type: string
+          format: uint64
+        - name: pagination.limit
+          description: >-
+            limit is the total number of results to be returned in the result
+            page.
+
+            If left empty it will default to a value to be set by each app.
+          in: query
+          required: false
+          type: string
+          format: uint64
+        - name: pagination.count_total
+          description: >-
+            count_total is set to true  to indicate that the result set should
+            include
+
+            a count of the total number of items available for pagination in
+            UIs.
+
+            count_total is only respected when offset is used. It is ignored
+            when key
+
+            is set.
+          in: query
+          required: false
+          type: boolean
+        - name: pagination.reverse
+          description: >-
+            reverse is set to true if results are to be returned in the
+            descending order.
+
+
+            Since: cosmos-sdk 0.43
+          in: query
+          required: false
+          type: boolean
+      tags:
+        - Query
+  '/zale144/whichnumber/games/{id}':
+    get:
+      operationId: Zale144WhichnumberWhichnumberGetGame
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            type: object
+            properties:
+              game:
+                description: game defines the game to be returned.
+                type: object
+                properties:
+                  id:
+                    type: string
+                    format: int64
+                  creator:
+                    type: string
+                    title: Address of the player who created the game
+                  secret_number:
+                    type: string
+                    format: int64
+                    title: The secret number that the players are guessing
+                  player_commits:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        commit:
+                          type: string
+                          title: 'hex encoded sha256 of "salt:number"'
+                        player_address:
+                          type: string
+                          title: Address of the player who submitted the guess
+                        created_at:
+                          type: string
+                          format: date-time
+                    title: The guesses submitted by the players
+                  player_reveals:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        player_address:
+                          type: string
+                        number:
+                          type: string
+                          format: int64
+                        salt:
+                          type: string
+                          title: hex encoded 32 bytes salt
+                        created_at:
+                          type: string
+                          format: date-time
+                    title: The reveals submitted by the players
+                  reward:
+                    title: The reward for the winner
+                    type: object
+                    properties:
+                      denom:
+                        type: string
+                      amount:
+                        type: string
+                    description: >-
+                      Coin defines a token with a denomination and an amount.
+
+
+                      NOTE: The amount field is an Int which implements the
+                      custom method
+
+                      signatures required by gogoproto.
+                  entry_fee:
+                    type: object
+                    properties:
+                      denom:
+                        type: string
+                      amount:
+                        type: string
+                    description: >-
+                      Coin defines a token with a denomination and an amount.
+
+
+                      NOTE: The amount field is an Int which implements the
+                      custom method
+
+                      signatures required by gogoproto.
+                  commit_timeout:
+                    type: string
+                    format: date-time
+                  reveal_timeout:
+                    type: string
+                    format: date-time
+                  beforeId:
+                    type: string
+                    format: int64
+                  afterId:
+                    type: string
+                    format: int64
+            description: >-
+              QueryGetGameResponse is the response type for the Query/GetGame
+              RPC method.
+        default:
+          description: An unexpected error response.
+          schema:
+            type: object
+            properties:
+              code:
+                type: integer
+                format: int32
+              message:
+                type: string
+              details:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    '@type':
+                      type: string
+                  additionalProperties: {}
+      parameters:
+        - name: id
+          description: id defines the id of the game to query for.
+          in: path
+          required: true
+          type: string
+          format: int64
+      tags:
+        - Query
+  /zale144/whichnumber/params:
     get:
       summary: Parameters queries the parameters of the module.
-      operationId: Zale144WhichnumberWhichnumberParams
+      operationId: Zale144WhichnumberWhichnumberGetParams
       responses:
         '200':
           description: A successful response.
@@ -29469,9 +29803,68 @@ paths:
               params:
                 description: params holds all the parameters of this module.
                 type: object
+                properties:
+                  commit_timeout:
+                    type: string
+                    format: uint64
+                    title: in seconds
+                  reveal_timeout:
+                    type: string
+                    format: uint64
+                    title: in seconds
+                  max_players_per_game:
+                    type: string
+                    format: uint64
+                  min_distance_to_win:
+                    type: string
+                    format: uint64
             description: >-
-              QueryParamsResponse is response type for the Query/Params RPC
+              QueryGetParamsResponse is response type for the Query/Params RPC
               method.
+        default:
+          description: An unexpected error response.
+          schema:
+            type: object
+            properties:
+              code:
+                type: integer
+                format: int32
+              message:
+                type: string
+              details:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    '@type':
+                      type: string
+                  additionalProperties: {}
+      tags:
+        - Query
+  /zale144/whichnumber/system_info:
+    get:
+      operationId: Zale144WhichnumberWhichnumberGetSystemInfo
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            type: object
+            properties:
+              SystemInfo:
+                type: object
+                properties:
+                  nextId:
+                    type: string
+                    format: int64
+                  fifoHeadId:
+                    type: string
+                    format: int64
+                  fifoTailId:
+                    type: string
+                    format: int64
+            title: >-
+              QueryGetSystemInfoResponse is the response type for the
+              Query/GetSystemInfo RPC method
         default:
           description: An unexpected error response.
           schema:
@@ -49479,13 +49872,411 @@ definitions:
     title: >-
       SignatureCounts contains information about signature reporting for a
       number of blocks
+  zale144.whichnumber.whichnumber.Game:
+    type: object
+    properties:
+      id:
+        type: string
+        format: int64
+      creator:
+        type: string
+        title: Address of the player who created the game
+      secret_number:
+        type: string
+        format: int64
+        title: The secret number that the players are guessing
+      player_commits:
+        type: array
+        items:
+          type: object
+          properties:
+            commit:
+              type: string
+              title: 'hex encoded sha256 of "salt:number"'
+            player_address:
+              type: string
+              title: Address of the player who submitted the guess
+            created_at:
+              type: string
+              format: date-time
+        title: The guesses submitted by the players
+      player_reveals:
+        type: array
+        items:
+          type: object
+          properties:
+            player_address:
+              type: string
+            number:
+              type: string
+              format: int64
+            salt:
+              type: string
+              title: hex encoded 32 bytes salt
+            created_at:
+              type: string
+              format: date-time
+        title: The reveals submitted by the players
+      reward:
+        title: The reward for the winner
+        type: object
+        properties:
+          denom:
+            type: string
+          amount:
+            type: string
+        description: |-
+          Coin defines a token with a denomination and an amount.
+
+          NOTE: The amount field is an Int which implements the custom method
+          signatures required by gogoproto.
+      entry_fee:
+        type: object
+        properties:
+          denom:
+            type: string
+          amount:
+            type: string
+        description: |-
+          Coin defines a token with a denomination and an amount.
+
+          NOTE: The amount field is an Int which implements the custom method
+          signatures required by gogoproto.
+      commit_timeout:
+        type: string
+        format: date-time
+      reveal_timeout:
+        type: string
+        format: date-time
+      beforeId:
+        type: string
+        format: int64
+      afterId:
+        type: string
+        format: int64
+  zale144.whichnumber.whichnumber.MsgCommitNumberResponse:
+    type: object
+  zale144.whichnumber.whichnumber.MsgNewGameResponse:
+    type: object
+    properties:
+      game_id:
+        type: string
+        format: int64
+        description: game_id is the ID of the created game.
+  zale144.whichnumber.whichnumber.MsgRevealNumberResponse:
+    type: object
+  zale144.whichnumber.whichnumber.MsgUpdateParamsResponse:
+    type: object
+    description: |-
+      MsgUpdateParamsResponse defines the response structure for executing a
+      MsgUpdateParams message.
+  zale144.whichnumber.whichnumber.NumberCommit:
+    type: object
+    properties:
+      commit:
+        type: string
+        title: 'hex encoded sha256 of "salt:number"'
+      player_address:
+        type: string
+        title: Address of the player who submitted the guess
+      created_at:
+        type: string
+        format: date-time
+  zale144.whichnumber.whichnumber.NumberReveal:
+    type: object
+    properties:
+      player_address:
+        type: string
+      number:
+        type: string
+        format: int64
+      salt:
+        type: string
+        title: hex encoded 32 bytes salt
+      created_at:
+        type: string
+        format: date-time
   zale144.whichnumber.whichnumber.Params:
     type: object
+    properties:
+      commit_timeout:
+        type: string
+        format: uint64
+        title: in seconds
+      reveal_timeout:
+        type: string
+        format: uint64
+        title: in seconds
+      max_players_per_game:
+        type: string
+        format: uint64
+      min_distance_to_win:
+        type: string
+        format: uint64
     description: Params defines the parameters for the module.
-  zale144.whichnumber.whichnumber.QueryParamsResponse:
+  zale144.whichnumber.whichnumber.QueryGetGameResponse:
+    type: object
+    properties:
+      game:
+        description: game defines the game to be returned.
+        type: object
+        properties:
+          id:
+            type: string
+            format: int64
+          creator:
+            type: string
+            title: Address of the player who created the game
+          secret_number:
+            type: string
+            format: int64
+            title: The secret number that the players are guessing
+          player_commits:
+            type: array
+            items:
+              type: object
+              properties:
+                commit:
+                  type: string
+                  title: 'hex encoded sha256 of "salt:number"'
+                player_address:
+                  type: string
+                  title: Address of the player who submitted the guess
+                created_at:
+                  type: string
+                  format: date-time
+            title: The guesses submitted by the players
+          player_reveals:
+            type: array
+            items:
+              type: object
+              properties:
+                player_address:
+                  type: string
+                number:
+                  type: string
+                  format: int64
+                salt:
+                  type: string
+                  title: hex encoded 32 bytes salt
+                created_at:
+                  type: string
+                  format: date-time
+            title: The reveals submitted by the players
+          reward:
+            title: The reward for the winner
+            type: object
+            properties:
+              denom:
+                type: string
+              amount:
+                type: string
+            description: >-
+              Coin defines a token with a denomination and an amount.
+
+
+              NOTE: The amount field is an Int which implements the custom
+              method
+
+              signatures required by gogoproto.
+          entry_fee:
+            type: object
+            properties:
+              denom:
+                type: string
+              amount:
+                type: string
+            description: >-
+              Coin defines a token with a denomination and an amount.
+
+
+              NOTE: The amount field is an Int which implements the custom
+              method
+
+              signatures required by gogoproto.
+          commit_timeout:
+            type: string
+            format: date-time
+          reveal_timeout:
+            type: string
+            format: date-time
+          beforeId:
+            type: string
+            format: int64
+          afterId:
+            type: string
+            format: int64
+    description: >-
+      QueryGetGameResponse is the response type for the Query/GetGame RPC
+      method.
+  zale144.whichnumber.whichnumber.QueryGetGamesResponse:
+    type: object
+    properties:
+      games:
+        type: array
+        items:
+          type: object
+          properties:
+            id:
+              type: string
+              format: int64
+            creator:
+              type: string
+              title: Address of the player who created the game
+            secret_number:
+              type: string
+              format: int64
+              title: The secret number that the players are guessing
+            player_commits:
+              type: array
+              items:
+                type: object
+                properties:
+                  commit:
+                    type: string
+                    title: 'hex encoded sha256 of "salt:number"'
+                  player_address:
+                    type: string
+                    title: Address of the player who submitted the guess
+                  created_at:
+                    type: string
+                    format: date-time
+              title: The guesses submitted by the players
+            player_reveals:
+              type: array
+              items:
+                type: object
+                properties:
+                  player_address:
+                    type: string
+                  number:
+                    type: string
+                    format: int64
+                  salt:
+                    type: string
+                    title: hex encoded 32 bytes salt
+                  created_at:
+                    type: string
+                    format: date-time
+              title: The reveals submitted by the players
+            reward:
+              title: The reward for the winner
+              type: object
+              properties:
+                denom:
+                  type: string
+                amount:
+                  type: string
+              description: >-
+                Coin defines a token with a denomination and an amount.
+
+
+                NOTE: The amount field is an Int which implements the custom
+                method
+
+                signatures required by gogoproto.
+            entry_fee:
+              type: object
+              properties:
+                denom:
+                  type: string
+                amount:
+                  type: string
+              description: >-
+                Coin defines a token with a denomination and an amount.
+
+
+                NOTE: The amount field is an Int which implements the custom
+                method
+
+                signatures required by gogoproto.
+            commit_timeout:
+              type: string
+              format: date-time
+            reveal_timeout:
+              type: string
+              format: date-time
+            beforeId:
+              type: string
+              format: int64
+            afterId:
+              type: string
+              format: int64
+      pagination:
+        type: object
+        properties:
+          next_key:
+            type: string
+            format: byte
+            title: |-
+              next_key is the key to be passed to PageRequest.key to
+              query the next page most efficiently
+          total:
+            type: string
+            format: uint64
+            title: >-
+              total is total number of results available if
+              PageRequest.count_total
+
+              was set, its value is undefined otherwise
+        description: |-
+          PageResponse is to be embedded in gRPC response messages where the
+          corresponding request message has used PageRequest.
+
+           message SomeResponse {
+                   repeated Bar results = 1;
+                   PageResponse page = 2;
+           }
+    description: QueryGamesResponse is the response type for the Query/Games RPC method.
+  zale144.whichnumber.whichnumber.QueryGetParamsResponse:
     type: object
     properties:
       params:
         description: params holds all the parameters of this module.
         type: object
-    description: QueryParamsResponse is response type for the Query/Params RPC method.
+        properties:
+          commit_timeout:
+            type: string
+            format: uint64
+            title: in seconds
+          reveal_timeout:
+            type: string
+            format: uint64
+            title: in seconds
+          max_players_per_game:
+            type: string
+            format: uint64
+          min_distance_to_win:
+            type: string
+            format: uint64
+    description: QueryGetParamsResponse is response type for the Query/Params RPC method.
+  zale144.whichnumber.whichnumber.QueryGetSystemInfoResponse:
+    type: object
+    properties:
+      SystemInfo:
+        type: object
+        properties:
+          nextId:
+            type: string
+            format: int64
+          fifoHeadId:
+            type: string
+            format: int64
+          fifoTailId:
+            type: string
+            format: int64
+    title: >-
+      QueryGetSystemInfoResponse is the response type for the
+      Query/GetSystemInfo RPC method
+  zale144.whichnumber.whichnumber.SystemInfo:
+    type: object
+    properties:
+      nextId:
+        type: string
+        format: int64
+      fifoHeadId:
+        type: string
+        format: int64
+      fifoTailId:
+        type: string
+        format: int64

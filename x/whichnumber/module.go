@@ -138,6 +138,8 @@ func (am AppModule) LegacyQuerierHandler(legacyQuerierCdc *codec.LegacyAmino) sd
 // RegisterServices registers a GRPC query service to respond to the
 // module-specific GRPC queries.
 func (am AppModule) RegisterServices(cfg module.Configurator) {
+	msgServer := keeper.NewMsgServerImpl(am.keeper)
+	types.RegisterMsgServer(cfg.MsgServer(), msgServer)
 	types.RegisterQueryServer(cfg.QueryServer(), am.keeper)
 }
 
@@ -170,6 +172,7 @@ func (am AppModule) BeginBlock(_ sdk.Context, _ abci.RequestBeginBlock) {}
 
 // EndBlock executes all ABCI EndBlock logic respective to the capability module. It
 // returns no validator updates.
-func (am AppModule) EndBlock(_ sdk.Context, _ abci.RequestEndBlock) []abci.ValidatorUpdate {
+func (am AppModule) EndBlock(ctx sdk.Context, _ abci.RequestEndBlock) []abci.ValidatorUpdate {
+	am.keeper.EndBlocker(ctx)
 	return []abci.ValidatorUpdate{}
 }

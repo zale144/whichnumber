@@ -2,6 +2,7 @@ package cli
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
@@ -16,12 +17,11 @@ func CmdQueryParams() *cobra.Command {
 		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx := client.GetClientContextFromCmd(cmd)
-
 			queryClient := types.NewQueryClient(clientCtx)
 
-			res, err := queryClient.Params(context.Background(), &types.QueryParamsRequest{})
+			res, err := queryClient.GetParams(context.Background(), &types.QueryGetParamsRequest{})
 			if err != nil {
-				return err
+				return fmt.Errorf("failed to get params: %w", err)
 			}
 
 			return clientCtx.PrintProto(res)

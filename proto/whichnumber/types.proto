@@ -1,0 +1,51 @@
+syntax = "proto3";
+package zale144.whichnumber.whichnumber;
+
+option go_package = "github.com/zale144/whichnumber/x/whichnumber/types";
+
+import "cosmos/base/v1beta1/coin.proto";
+import "gogoproto/gogo.proto";
+import "google/protobuf/timestamp.proto";
+
+message Game {
+  int64 id = 1;
+  string creator = 2; // Address of the player who created the game
+  int64 secret_number = 3; // The secret number that the players are guessing
+  repeated NumberCommit player_commits = 4; // The guesses submitted by the players
+  repeated NumberReveal player_reveals = 5; // The reveals submitted by the players
+  cosmos.base.v1beta1.Coin reward = 6  [(gogoproto.nullable) = false]; // The reward for the winner
+  cosmos.base.v1beta1.Coin entry_fee = 7 [(gogoproto.nullable) = false];
+
+  google.protobuf.Timestamp commit_timeout = 8 [
+    (gogoproto.stdtime) = true,
+    (gogoproto.nullable) = false
+  ];
+  google.protobuf.Timestamp reveal_timeout = 9 [
+    (gogoproto.stdtime) = true,
+    (gogoproto.nullable) = false
+  ];
+
+  int64 beforeId = 10 [(gogoproto.nullable) = true];
+  int64 afterId = 11 [(gogoproto.nullable) = true];
+}
+
+message NumberCommit {
+  string commit = 1; // hex encoded sha256 of "salt:number"
+  string player_address = 2;  // Address of the player who submitted the guess
+
+  google.protobuf.Timestamp created_at = 3 [
+    (gogoproto.stdtime) = true,
+    (gogoproto.nullable) = false
+  ];
+}
+
+message NumberReveal {
+  string player_address = 1;
+  int64 number = 2;
+  string salt = 3; // hex encoded 32 bytes salt
+
+  google.protobuf.Timestamp created_at = 4 [
+    (gogoproto.stdtime) = true,
+    (gogoproto.nullable) = false
+  ];
+}

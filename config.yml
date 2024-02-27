@@ -14,3 +14,14 @@ client:
 faucet:
   name: bob
   coins: ["5token", "100000stake"]
+init:
+  config:
+    log_level: "debug"
+genesis:
+  app_state:
+    whichnumber:
+      params:
+        commit_timeout: "120"
+        reveal_timeout: "120"
+        max_players_per_game: "5"
+        min_distance_to_win: "10"

@@ -1,0 +1,30 @@
+syntax = "proto3";
+package zale144.whichnumber.whichnumber;
+
+option go_package = "github.com/zale144/whichnumber/x/whichnumber/types";
+
+message EventNewGame {
+  string creator = 1;
+  string game_id = 2;
+  string entry_fee = 3;
+  uint64 max_players = 4;
+  string reward = 5;
+  string commit_timeout = 6;
+}
+
+message EventRevealTimeout {
+  string game_id = 1;
+  string reveal_timeout = 2;
+  uint64 number_of_players = 3;
+}
+
+message EventGameEnd {
+  string game_id = 1;
+  repeated Winner winners = 2;
+}
+
+message Winner {
+  string player = 1;
+  uint64 proximity = 2;
+  string reward = 3;
+}

@@ -15,6 +15,19 @@ const (
 
 	// MemStoreKey defines the in-memory store key
 	MemStoreKey = "mem_whichnumber"
+
+	SystemInfoKey = "SystemInfo-value-"
+)
+
+const (
+	ParamKeyCommitTimeout     = "CommitTimeout"
+	ParamKeyRevealTimeout     = "RevealTimeout"
+	ParamKeyMaxPlayersPerGame = "MaxPlayersPerGame"
+	ParamKeyMinDistanceToWin  = "MinDistanceToWin"
+)
+
+const (
+	NoFifoId int64 = -1
 )
 
 func KeyPrefix(p string) []byte {

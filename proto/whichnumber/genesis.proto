@@ -1,14 +1,21 @@
 syntax = "proto3";
 package zale144.whichnumber.whichnumber;
 
+option go_package = "github.com/zale144/whichnumber/x/whichnumber/types";
+
 import "gogoproto/gogo.proto";
 import "whichnumber/params.proto";
+import "whichnumber/system_info.proto";
+import "whichnumber/types.proto";
 // this line is used by starport scaffolding # genesis/proto/import
 
-option go_package = "github.com/zale144/whichnumber/x/whichnumber/types";
 
 // GenesisState defines the whichnumber module's genesis state.
 message GenesisState {
   Params params = 1 [(gogoproto.nullable) = false];
+
+  SystemInfo systemInfo = 2 [(gogoproto.nullable) = false];
+  repeated Game storedGameList = 3 [(gogoproto.nullable) = false];
+
   // this line is used by starport scaffolding # genesis/proto/state
 }

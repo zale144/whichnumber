@@ -1,0 +1,12 @@
+syntax = "proto3";
+package zale144.whichnumber.whichnumber;
+
+option go_package = "github.com/zale144/whichnumber/x/whichnumber/types";
+
+import "gogoproto/gogo.proto";
+
+message SystemInfo {
+  int64 nextId = 1;
+  int64 fifoHeadId = 2;
+  int64 fifoTailId = 3;
+}

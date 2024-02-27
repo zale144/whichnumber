@@ -94,7 +94,7 @@ import (
 	"github.com/ignite-hq/cli/ignite/pkg/cosmoscmd"
 	"github.com/ignite-hq/cli/ignite/pkg/openapiconsole"
 
-	monitoringp "github.com/tendermint/spn/x/monitoringp"
+	"github.com/tendermint/spn/x/monitoringp"
 	monitoringpkeeper "github.com/tendermint/spn/x/monitoringp/keeper"
 	monitoringptypes "github.com/tendermint/spn/x/monitoringp/types"
 
@@ -171,6 +171,7 @@ var (
 		govtypes.ModuleName:            {authtypes.Burner},
 		ibctransfertypes.ModuleName:    {authtypes.Minter, authtypes.Burner},
 		// this line is used by starport scaffolding # stargate/app/maccPerms
+		whichnumbermoduletypes.ModuleName: nil,
 	}
 )
 
@@ -256,6 +257,8 @@ func New(
 	appCodec := encodingConfig.Marshaler
 	cdc := encodingConfig.Amino
 	interfaceRegistry := encodingConfig.InterfaceRegistry
+
+	baseAppOptions = append(baseAppOptions, baseapp.SetTrace(true))
 
 	bApp := baseapp.NewBaseApp(Name, logger, db, encodingConfig.TxConfig.TxDecoder(), baseAppOptions...)
 	bApp.SetCommitMultiStoreTracer(traceStore)
@@ -394,6 +397,7 @@ func New(
 		keys[whichnumbermoduletypes.StoreKey],
 		keys[whichnumbermoduletypes.MemStoreKey],
 		app.GetSubspace(whichnumbermoduletypes.ModuleName),
+		app.BankKeeper,
 	)
 	whichnumberModule := whichnumbermodule.NewAppModule(appCodec, app.WhichnumberKeeper, app.AccountKeeper, app.BankKeeper)
 

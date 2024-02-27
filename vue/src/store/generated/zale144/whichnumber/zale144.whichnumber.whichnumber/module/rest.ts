@@ -21,17 +21,220 @@ export interface RpcStatus {
 }
 
 /**
- * QueryParamsResponse is response type for the Query/Params RPC method.
- */
-export interface WhichnumberQueryParamsResponse {
-  /** params holds all the parameters of this module. */
-  params?: WhichnumberwhichnumberParams;
+* Coin defines a token with a denomination and an amount.
+
+NOTE: The amount field is an Int which implements the custom method
+signatures required by gogoproto.
+*/
+export interface V1Beta1Coin {
+  denom?: string;
+  amount?: string;
+}
+
+/**
+* message SomeRequest {
+         Foo some_parameter = 1;
+         PageRequest pagination = 2;
+ }
+*/
+export interface V1Beta1PageRequest {
+  /**
+   * key is a value returned in PageResponse.next_key to begin
+   * querying the next page most efficiently. Only one of offset or key
+   * should be set.
+   * @format byte
+   */
+  key?: string;
+
+  /**
+   * offset is a numeric offset that can be used when key is unavailable.
+   * It is less efficient than using key. Only one of offset or key should
+   * be set.
+   * @format uint64
+   */
+  offset?: string;
+
+  /**
+   * limit is the total number of results to be returned in the result page.
+   * If left empty it will default to a value to be set by each app.
+   * @format uint64
+   */
+  limit?: string;
+
+  /**
+   * count_total is set to true  to indicate that the result set should include
+   * a count of the total number of items available for pagination in UIs.
+   * count_total is only respected when offset is used. It is ignored when key
+   * is set.
+   */
+  count_total?: boolean;
+
+  /**
+   * reverse is set to true if results are to be returned in the descending order.
+   *
+   * Since: cosmos-sdk 0.43
+   */
+  reverse?: boolean;
+}
+
+/**
+* PageResponse is to be embedded in gRPC response messages where the
+corresponding request message has used PageRequest.
+
+ message SomeResponse {
+         repeated Bar results = 1;
+         PageResponse page = 2;
+ }
+*/
+export interface V1Beta1PageResponse {
+  /** @format byte */
+  next_key?: string;
+
+  /** @format uint64 */
+  total?: string;
+}
+
+export interface WhichnumberGame {
+  /** @format int64 */
+  id?: string;
+  creator?: string;
+
+  /** @format int64 */
+  secret_number?: string;
+  player_commits?: WhichnumberNumberCommit[];
+  player_reveals?: WhichnumberNumberReveal[];
+
+  /**
+   * Coin defines a token with a denomination and an amount.
+   *
+   * NOTE: The amount field is an Int which implements the custom method
+   * signatures required by gogoproto.
+   */
+  reward?: V1Beta1Coin;
+
+  /**
+   * Coin defines a token with a denomination and an amount.
+   *
+   * NOTE: The amount field is an Int which implements the custom method
+   * signatures required by gogoproto.
+   */
+  entry_fee?: V1Beta1Coin;
+
+  /** @format date-time */
+  commit_timeout?: string;
+
+  /** @format date-time */
+  reveal_timeout?: string;
+
+  /** @format int64 */
+  beforeId?: string;
+
+  /** @format int64 */
+  afterId?: string;
+}
+
+export type WhichnumberMsgCommitNumberResponse = object;
+
+export interface WhichnumberMsgNewGameResponse {
+  /**
+   * game_id is the ID of the created game.
+   * @format int64
+   */
+  game_id?: string;
+}
+
+export type WhichnumberMsgRevealNumberResponse = object;
+
+/**
+* MsgUpdateParamsResponse defines the response structure for executing a
+MsgUpdateParams message.
+*/
+export type WhichnumberMsgUpdateParamsResponse = object;
+
+export interface WhichnumberNumberCommit {
+  commit?: string;
+  player_address?: string;
+
+  /** @format date-time */
+  created_at?: string;
+}
+
+export interface WhichnumberNumberReveal {
+  player_address?: string;
+
+  /** @format int64 */
+  number?: string;
+  salt?: string;
+
+  /** @format date-time */
+  created_at?: string;
 }
 
 /**
  * Params defines the parameters for the module.
  */
-export type WhichnumberwhichnumberParams = object;
+export interface WhichnumberParams {
+  /** @format uint64 */
+  commit_timeout?: string;
+
+  /** @format uint64 */
+  reveal_timeout?: string;
+
+  /** @format uint64 */
+  max_players_per_game?: string;
+
+  /** @format uint64 */
+  min_distance_to_win?: string;
+}
+
+/**
+ * QueryGetGameResponse is the response type for the Query/GetGame RPC method.
+ */
+export interface WhichnumberQueryGetGameResponse {
+  /** game defines the game to be returned. */
+  game?: WhichnumberGame;
+}
+
+/**
+ * QueryGamesResponse is the response type for the Query/Games RPC method.
+ */
+export interface WhichnumberQueryGetGamesResponse {
+  games?: WhichnumberGame[];
+
+  /**
+   * PageResponse is to be embedded in gRPC response messages where the
+   * corresponding request message has used PageRequest.
+   *
+   *  message SomeResponse {
+   *          repeated Bar results = 1;
+   *          PageResponse page = 2;
+   *  }
+   */
+  pagination?: V1Beta1PageResponse;
+}
+
+/**
+ * QueryGetParamsResponse is response type for the Query/Params RPC method.
+ */
+export interface WhichnumberQueryGetParamsResponse {
+  /** params holds all the parameters of this module. */
+  params?: WhichnumberParams;
+}
+
+export interface WhichnumberQueryGetSystemInfoResponse {
+  SystemInfo?: WhichnumberSystemInfo;
+}
+
+export interface WhichnumberSystemInfo {
+  /** @format int64 */
+  nextId?: string;
+
+  /** @format int64 */
+  fifoHeadId?: string;
+
+  /** @format int64 */
+  fifoTailId?: string;
+}
 
 export type QueryParamsType = Record<string | number, any>;
 export type ResponseFormat = keyof Omit<Body, "body" | "bodyUsed">;
@@ -225,7 +428,7 @@ export class HttpClient<SecurityDataType = unknown> {
 }
 
 /**
- * @title whichnumber/genesis.proto
+ * @title whichnumber/event.proto
  * @version version not set
  */
 export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDataType> {
@@ -233,13 +436,68 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
    * No description
    *
    * @tags Query
-   * @name QueryParams
-   * @summary Parameters queries the parameters of the module.
-   * @request GET:/zale144/whichnumber/whichnumber/params
+   * @name QueryGetGames
+   * @request GET:/zale144/whichnumber/games
    */
-  queryParams = (params: RequestParams = {}) =>
-    this.request<WhichnumberQueryParamsResponse, RpcStatus>({
-      path: `/zale144/whichnumber/whichnumber/params`,
+  queryGetGames = (
+    query?: {
+      "pagination.key"?: string;
+      "pagination.offset"?: string;
+      "pagination.limit"?: string;
+      "pagination.count_total"?: boolean;
+      "pagination.reverse"?: boolean;
+    },
+    params: RequestParams = {},
+  ) =>
+    this.request<WhichnumberQueryGetGamesResponse, RpcStatus>({
+      path: `/zale144/whichnumber/games`,
+      method: "GET",
+      query: query,
+      format: "json",
+      ...params,
+    });
+
+  /**
+   * No description
+   *
+   * @tags Query
+   * @name QueryGetGame
+   * @request GET:/zale144/whichnumber/games/{id}
+   */
+  queryGetGame = (id: string, params: RequestParams = {}) =>
+    this.request<WhichnumberQueryGetGameResponse, RpcStatus>({
+      path: `/zale144/whichnumber/games/${id}`,
+      method: "GET",
+      format: "json",
+      ...params,
+    });
+
+  /**
+   * No description
+   *
+   * @tags Query
+   * @name QueryGetParams
+   * @summary Parameters queries the parameters of the module.
+   * @request GET:/zale144/whichnumber/params
+   */
+  queryGetParams = (params: RequestParams = {}) =>
+    this.request<WhichnumberQueryGetParamsResponse, RpcStatus>({
+      path: `/zale144/whichnumber/params`,
+      method: "GET",
+      format: "json",
+      ...params,
+    });
+
+  /**
+   * No description
+   *
+   * @tags Query
+   * @name QueryGetSystemInfo
+   * @request GET:/zale144/whichnumber/system_info
+   */
+  queryGetSystemInfo = (params: RequestParams = {}) =>
+    this.request<WhichnumberQueryGetSystemInfoResponse, RpcStatus>({
+      path: `/zale144/whichnumber/system_info`,
       method: "GET",
       format: "json",
       ...params,

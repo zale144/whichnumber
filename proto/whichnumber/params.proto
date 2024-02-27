@@ -8,5 +8,8 @@ option go_package = "github.com/zale144/whichnumber/x/whichnumber/types";
 // Params defines the parameters for the module.
 message Params {
   option (gogoproto.goproto_stringer) = false;
-  
+  uint64 commit_timeout = 1; // in seconds
+  uint64 reveal_timeout = 2; // in seconds
+  uint64 max_players_per_game = 3;
+  uint64 min_distance_to_win = 4;
 }

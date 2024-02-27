@@ -43,6 +43,44 @@ curl https://get.ignite.com/zale144/whichnumber@latest! | sudo bash
 ```
 `zale144/whichnumber` should match the `username` and `repo_name` of the Github repository to which the source code was pushed. Learn more about [the install process](https://github.com/allinbits/starport-installer).
 
+## Use
+
+### Tx
+
+#### Update Params
+
+     whichnumberd tx whichnumber update-params 600 600 11 121 --from bob
+
+#### Create a new Game
+
+     whichnumberd tx whichnumber new-game 42 11stake 121stake --from bob
+
+#### Commit a number
+
+     whichnumberd tx whichnumber commit-number 1 38 --from bob
+
+#### Reveal a number
+    
+     whichnumberd tx whichnumber reveal-number 1 38 [salt] --from bob
+
+### Query
+
+#### List all games
+
+    whichnumberd query whichnumber list-games
+
+#### Show a game
+    
+    whichnumberd query whichnumber show-game 1
+
+#### Show params
+
+    whichnumberd query whichnumber params
+
+#### Show system info
+    
+    whichnumberd query whichnumber show-system-info
+
 ## Learn more
 
 - [Ignite CLI](https://ignite.com/cli)

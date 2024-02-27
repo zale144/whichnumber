@@ -5,9 +5,11 @@ import (
 	"github.com/zale144/whichnumber/x/whichnumber/types"
 )
 
-// GetParams get all parameters as types.Params
-func (k Keeper) GetParams(ctx sdk.Context) types.Params {
-	return types.NewParams()
+// GetStoredParams get all parameters as types.Params
+func (k Keeper) GetStoredParams(ctx sdk.Context) types.Params {
+	var params types.Params
+	k.paramstore.GetParamSet(ctx, &params)
+	return params
 }
 
 // SetParams set the params

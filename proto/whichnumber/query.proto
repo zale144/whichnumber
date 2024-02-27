@@ -1,28 +1,75 @@
 syntax = "proto3";
 package zale144.whichnumber.whichnumber;
 
+option go_package = "github.com/zale144/whichnumber/x/whichnumber/types";
+
 import "gogoproto/gogo.proto";
 import "google/api/annotations.proto";
 import "cosmos/base/query/v1beta1/pagination.proto";
 import "whichnumber/params.proto";
+import "whichnumber/types.proto";
+import "whichnumber/system_info.proto";
 // this line is used by starport scaffolding # 1
 
-option go_package = "github.com/zale144/whichnumber/x/whichnumber/types";
 
 // Query defines the gRPC querier service.
 service Query {
-  // Parameters queries the parameters of the module.
-  rpc Params(QueryParamsRequest) returns (QueryParamsResponse) {
-    option (google.api.http).get = "/zale144/whichnumber/whichnumber/params";
+  rpc GetGame(QueryGetGameRequest) returns (QueryGetGameResponse) {
+    option (google.api.http).get = "/zale144/whichnumber/games/{id}";
   }
+
+  rpc GetGames(QueryGetGamesRequest) returns (QueryGetGamesResponse) {
+    option (google.api.http).get = "/zale144/whichnumber/games";
+  }
+
+  rpc GetSystemInfo(QueryGetSystemInfoRequest) returns (QueryGetSystemInfoResponse) {
+    option (google.api.http).get = "/zale144/whichnumber/system_info";
+  }
+
+  // Parameters queries the parameters of the module.
+  rpc GetParams(QueryGetParamsRequest) returns (QueryGetParamsResponse) {
+    option (google.api.http).get = "/zale144/whichnumber/params";
+  }
+
   // this line is used by starport scaffolding # 2
 }
 
-// QueryParamsRequest is request type for the Query/Params RPC method.
-message QueryParamsRequest {}
+// QueryGetGameRequest is the request type for the Query/GetGame RPC method.
+message QueryGetGameRequest {
+  // id defines the id of the game to query for.
+  int64 id = 1;
+}
 
-// QueryParamsResponse is response type for the Query/Params RPC method.
-message QueryParamsResponse {
+// QueryGetGameResponse is the response type for the Query/GetGame RPC method.
+message QueryGetGameResponse {
+  // game defines the game to be returned.
+  Game game = 1 [(gogoproto.nullable) = false];
+}
+
+// QueryGamesRequest is the request type for the Query/Games RPC method.
+message QueryGetGamesRequest {
+  cosmos.base.query.v1beta1.PageRequest pagination = 1;
+}
+
+// QueryGamesResponse is the response type for the Query/Games RPC method.
+message QueryGetGamesResponse {
+  repeated Game games = 1 [(gogoproto.nullable) = false];
+  cosmos.base.query.v1beta1.PageResponse pagination = 2;
+}
+
+// QueryGetSystemRequest is the request type for the Query/GetSystem RPC method
+message QueryGetSystemInfoRequest {}
+
+// QueryGetSystemInfoResponse is the response type for the Query/GetSystemInfo RPC method
+message QueryGetSystemInfoResponse {
+  SystemInfo SystemInfo = 1 [(gogoproto.nullable) = false];
+}
+
+// QueryGetParamsRequest is request type for the Query/Params RPC method.
+message QueryGetParamsRequest {}
+
+// QueryGetParamsResponse is response type for the Query/Params RPC method.
+message QueryGetParamsResponse {
   // params holds all the parameters of this module.
   Params params = 1 [(gogoproto.nullable) = false];
 }
