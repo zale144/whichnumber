@@ -1,17 +1,25 @@
 import { txClient, queryClient, MissingWalletError , registry} from './module'
 
-import { EventNewGame } from "./module/types/whichnumber/event"
-import { EventRevealTimeout } from "./module/types/whichnumber/event"
+import { EventGameNew } from "./module/types/whichnumber/event"
+import { EventGameNewCommit } from "./module/types/whichnumber/event"
+import { EventGameNewReveal } from "./module/types/whichnumber/event"
+import { EventGameCommitFinished } from "./module/types/whichnumber/event"
+import { EventGameRevealFinished } from "./module/types/whichnumber/event"
 import { EventGameEnd } from "./module/types/whichnumber/event"
-import { Winner } from "./module/types/whichnumber/event"
+import { EventGameCreatorDeposit } from "./module/types/whichnumber/event"
+import { EventGamePlayerDeposit } from "./module/types/whichnumber/event"
+import { EventParamsUpdated } from "./module/types/whichnumber/event"
 import { Params } from "./module/types/whichnumber/params"
+import { QueryGameResponse } from "./module/types/whichnumber/query"
+import { QueryPlayerReveal } from "./module/types/whichnumber/query"
 import { SystemInfo } from "./module/types/whichnumber/system_info"
 import { Game } from "./module/types/whichnumber/types"
 import { NumberCommit } from "./module/types/whichnumber/types"
 import { NumberReveal } from "./module/types/whichnumber/types"
+import { Winner } from "./module/types/whichnumber/types"
 
 
-export { EventNewGame, EventRevealTimeout, EventGameEnd, Winner, Params, SystemInfo, Game, NumberCommit, NumberReveal };
+export { EventGameNew, EventGameNewCommit, EventGameNewReveal, EventGameCommitFinished, EventGameRevealFinished, EventGameEnd, EventGameCreatorDeposit, EventGamePlayerDeposit, EventParamsUpdated, Params, QueryGameResponse, QueryPlayerReveal, SystemInfo, Game, NumberCommit, NumberReveal, Winner };
 
 async function initTxClient(vuexGetters) {
 	return await txClient(vuexGetters['common/wallet/signer'], {
@@ -55,15 +63,23 @@ const getDefaultState = () => {
 				GetParams: {},
 				
 				_Structure: {
-						EventNewGame: getStructure(EventNewGame.fromPartial({})),
-						EventRevealTimeout: getStructure(EventRevealTimeout.fromPartial({})),
+						EventGameNew: getStructure(EventGameNew.fromPartial({})),
+						EventGameNewCommit: getStructure(EventGameNewCommit.fromPartial({})),
+						EventGameNewReveal: getStructure(EventGameNewReveal.fromPartial({})),
+						EventGameCommitFinished: getStructure(EventGameCommitFinished.fromPartial({})),
+						EventGameRevealFinished: getStructure(EventGameRevealFinished.fromPartial({})),
 						EventGameEnd: getStructure(EventGameEnd.fromPartial({})),
-						Winner: getStructure(Winner.fromPartial({})),
+						EventGameCreatorDeposit: getStructure(EventGameCreatorDeposit.fromPartial({})),
+						EventGamePlayerDeposit: getStructure(EventGamePlayerDeposit.fromPartial({})),
+						EventParamsUpdated: getStructure(EventParamsUpdated.fromPartial({})),
 						Params: getStructure(Params.fromPartial({})),
+						QueryGameResponse: getStructure(QueryGameResponse.fromPartial({})),
+						QueryPlayerReveal: getStructure(QueryPlayerReveal.fromPartial({})),
 						SystemInfo: getStructure(SystemInfo.fromPartial({})),
 						Game: getStructure(Game.fromPartial({})),
 						NumberCommit: getStructure(NumberCommit.fromPartial({})),
 						NumberReveal: getStructure(NumberReveal.fromPartial({})),
+						Winner: getStructure(Winner.fromPartial({})),
 						
 		},
 		_Registry: registry,
@@ -242,21 +258,6 @@ export default {
 		},
 		
 		
-		async sendMsgRevealNumber({ rootGetters }, { value, fee = [], memo = '' }) {
-			try {
-				const txClient=await initTxClient(rootGetters)
-				const msg = await txClient.msgRevealNumber(value)
-				const result = await txClient.signAndBroadcast([msg], {fee: { amount: fee, 
-	gas: "200000" }, memo})
-				return result
-			} catch (e) {
-				if (e == MissingWalletError) {
-					throw new Error('TxClient:MsgRevealNumber:Init Could not initialize signing client. Wallet is required.')
-				}else{
-					throw new Error('TxClient:MsgRevealNumber:Send Could not broadcast Tx: '+ e.message)
-				}
-			}
-		},
 		async sendMsgUpdateParams({ rootGetters }, { value, fee = [], memo = '' }) {
 			try {
 				const txClient=await initTxClient(rootGetters)
@@ -272,18 +273,18 @@ export default {
 				}
 			}
 		},
-		async sendMsgCommitNumber({ rootGetters }, { value, fee = [], memo = '' }) {
+		async sendMsgRevealNumber({ rootGetters }, { value, fee = [], memo = '' }) {
 			try {
 				const txClient=await initTxClient(rootGetters)
-				const msg = await txClient.msgCommitNumber(value)
+				const msg = await txClient.msgRevealNumber(value)
 				const result = await txClient.signAndBroadcast([msg], {fee: { amount: fee, 
 	gas: "200000" }, memo})
 				return result
 			} catch (e) {
 				if (e == MissingWalletError) {
-					throw new Error('TxClient:MsgCommitNumber:Init Could not initialize signing client. Wallet is required.')
+					throw new Error('TxClient:MsgRevealNumber:Init Could not initialize signing client. Wallet is required.')
 				}else{
-					throw new Error('TxClient:MsgCommitNumber:Send Could not broadcast Tx: '+ e.message)
+					throw new Error('TxClient:MsgRevealNumber:Send Could not broadcast Tx: '+ e.message)
 				}
 			}
 		},
@@ -302,20 +303,22 @@ export default {
 				}
 			}
 		},
-		
-		async MsgRevealNumber({ rootGetters }, { value }) {
+		async sendMsgCommitNumber({ rootGetters }, { value, fee = [], memo = '' }) {
 			try {
 				const txClient=await initTxClient(rootGetters)
-				const msg = await txClient.msgRevealNumber(value)
-				return msg
+				const msg = await txClient.msgCommitNumber(value)
+				const result = await txClient.signAndBroadcast([msg], {fee: { amount: fee, 
+	gas: "200000" }, memo})
+				return result
 			} catch (e) {
 				if (e == MissingWalletError) {
-					throw new Error('TxClient:MsgRevealNumber:Init Could not initialize signing client. Wallet is required.')
-				} else{
-					throw new Error('TxClient:MsgRevealNumber:Create Could not create message: ' + e.message)
+					throw new Error('TxClient:MsgCommitNumber:Init Could not initialize signing client. Wallet is required.')
+				}else{
+					throw new Error('TxClient:MsgCommitNumber:Send Could not broadcast Tx: '+ e.message)
 				}
 			}
 		},
+		
 		async MsgUpdateParams({ rootGetters }, { value }) {
 			try {
 				const txClient=await initTxClient(rootGetters)
@@ -329,16 +332,16 @@ export default {
 				}
 			}
 		},
-		async MsgCommitNumber({ rootGetters }, { value }) {
+		async MsgRevealNumber({ rootGetters }, { value }) {
 			try {
 				const txClient=await initTxClient(rootGetters)
-				const msg = await txClient.msgCommitNumber(value)
+				const msg = await txClient.msgRevealNumber(value)
 				return msg
 			} catch (e) {
 				if (e == MissingWalletError) {
-					throw new Error('TxClient:MsgCommitNumber:Init Could not initialize signing client. Wallet is required.')
+					throw new Error('TxClient:MsgRevealNumber:Init Could not initialize signing client. Wallet is required.')
 				} else{
-					throw new Error('TxClient:MsgCommitNumber:Create Could not create message: ' + e.message)
+					throw new Error('TxClient:MsgRevealNumber:Create Could not create message: ' + e.message)
 				}
 			}
 		},
@@ -352,6 +355,19 @@ export default {
 					throw new Error('TxClient:MsgNewGame:Init Could not initialize signing client. Wallet is required.')
 				} else{
 					throw new Error('TxClient:MsgNewGame:Create Could not create message: ' + e.message)
+				}
+			}
+		},
+		async MsgCommitNumber({ rootGetters }, { value }) {
+			try {
+				const txClient=await initTxClient(rootGetters)
+				const msg = await txClient.msgCommitNumber(value)
+				return msg
+			} catch (e) {
+				if (e == MissingWalletError) {
+					throw new Error('TxClient:MsgCommitNumber:Init Could not initialize signing client. Wallet is required.')
+				} else{
+					throw new Error('TxClient:MsgCommitNumber:Create Could not create message: ' + e.message)
 				}
 			}
 		},

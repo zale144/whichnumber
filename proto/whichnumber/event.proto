@@ -3,19 +3,47 @@ package zale144.whichnumber.whichnumber;
 
 option go_package = "github.com/zale144/whichnumber/x/whichnumber/types";
 
-message EventNewGame {
+import "whichnumber/types.proto";
+import "whichnumber/params.proto";
+import "gogoproto/gogo.proto";
+
+message EventGameNew {
   string creator = 1;
   string game_id = 2;
   string entry_fee = 3;
   uint64 max_players = 4;
   string reward = 5;
   string commit_timeout = 6;
+  GameStatus status = 7;
 }
 
-message EventRevealTimeout {
+message EventGameNewCommit {
+  string game_id = 1;
+  string player = 2;
+  string commit = 3;
+  uint64 number_of_commits = 4;
+  string timestamp = 5;
+}
+
+message EventGameNewReveal {
+  string game_id = 1;
+  string player = 2;
+  string reveal = 3;
+  uint64 number_of_reveals = 4;
+  uint64 number_of_commits = 5;
+  string timestamp = 6;
+}
+
+message EventGameCommitFinished {
+  string game_id = 1;
+  string commit_timeout = 2;
+  uint64 number_of_commits = 3;
+}
+
+message EventGameRevealFinished {
   string game_id = 1;
   string reveal_timeout = 2;
-  uint64 number_of_players = 3;
+  uint64 number_of_reveals = 3;
 }
 
 message EventGameEnd {
@@ -23,8 +51,18 @@ message EventGameEnd {
   repeated Winner winners = 2;
 }
 
-message Winner {
-  string player = 1;
-  uint64 proximity = 2;
-  string reward = 3;
+message EventGameCreatorDeposit {
+  string game_id = 1;
+  string creator = 2;
+  string amount = 3;
+}
+
+message EventGamePlayerDeposit {
+  string game_id = 1;
+  string player = 2;
+  string amount = 3;
+}
+
+message EventParamsUpdated {
+  Params params = 1 [(gogoproto.nullable) = false];
 }

@@ -94,43 +94,11 @@ export interface V1Beta1PageResponse {
   total?: string;
 }
 
-export interface WhichnumberGame {
-  /** @format int64 */
-  id?: string;
-  creator?: string;
-
-  /** @format int64 */
-  secret_number?: string;
-  player_commits?: WhichnumberNumberCommit[];
-  player_reveals?: WhichnumberNumberReveal[];
-
-  /**
-   * Coin defines a token with a denomination and an amount.
-   *
-   * NOTE: The amount field is an Int which implements the custom method
-   * signatures required by gogoproto.
-   */
-  reward?: V1Beta1Coin;
-
-  /**
-   * Coin defines a token with a denomination and an amount.
-   *
-   * NOTE: The amount field is an Int which implements the custom method
-   * signatures required by gogoproto.
-   */
-  entry_fee?: V1Beta1Coin;
-
-  /** @format date-time */
-  commit_timeout?: string;
-
-  /** @format date-time */
-  reveal_timeout?: string;
-
-  /** @format int64 */
-  beforeId?: string;
-
-  /** @format int64 */
-  afterId?: string;
+export enum WhichnumberGameStatus {
+  GAME_STATUS_UNSPECIFIED = "GAME_STATUS_UNSPECIFIED",
+  GAME_STATUS_COMMITTING = "GAME_STATUS_COMMITTING",
+  GAME_STATUS_REVEALING = "GAME_STATUS_REVEALING",
+  GAME_STATUS_FINISHED = "GAME_STATUS_FINISHED",
 }
 
 export type WhichnumberMsgCommitNumberResponse = object;
@@ -152,19 +120,8 @@ MsgUpdateParams message.
 export type WhichnumberMsgUpdateParamsResponse = object;
 
 export interface WhichnumberNumberCommit {
+  player_address?: string;
   commit?: string;
-  player_address?: string;
-
-  /** @format date-time */
-  created_at?: string;
-}
-
-export interface WhichnumberNumberReveal {
-  player_address?: string;
-
-  /** @format int64 */
-  number?: string;
-  salt?: string;
 
   /** @format date-time */
   created_at?: string;
@@ -190,16 +147,37 @@ export interface WhichnumberParams {
 /**
  * QueryGetGameResponse is the response type for the Query/GetGame RPC method.
  */
+export interface WhichnumberQueryGameResponse {
+  /** @format int64 */
+  id?: string;
+  creator?: string;
+  player_commits?: WhichnumberNumberCommit[];
+  player_reveals?: WhichnumberQueryPlayerReveal[];
+  reward?: string;
+  entry_fee?: string;
+
+  /** @format date-time */
+  commit_timeout?: string;
+
+  /** @format date-time */
+  reveal_timeout?: string;
+  status?: WhichnumberGameStatus;
+  winners?: WhichnumberWinner[];
+}
+
+/**
+ * QueryGetGameResponse is the response type for the Query/GetGame RPC method.
+ */
 export interface WhichnumberQueryGetGameResponse {
-  /** game defines the game to be returned. */
-  game?: WhichnumberGame;
+  /** QueryGetGameResponse is the response type for the Query/GetGame RPC method. */
+  game?: WhichnumberQueryGameResponse;
 }
 
 /**
  * QueryGamesResponse is the response type for the Query/Games RPC method.
  */
 export interface WhichnumberQueryGetGamesResponse {
-  games?: WhichnumberGame[];
+  games?: WhichnumberQueryGameResponse[];
 
   /**
    * PageResponse is to be embedded in gRPC response messages where the
@@ -225,6 +203,16 @@ export interface WhichnumberQueryGetSystemInfoResponse {
   SystemInfo?: WhichnumberSystemInfo;
 }
 
+export interface WhichnumberQueryPlayerReveal {
+  player_address?: string;
+
+  /** @format uint64 */
+  proximity?: string;
+
+  /** @format date-time */
+  created_at?: string;
+}
+
 export interface WhichnumberSystemInfo {
   /** @format int64 */
   nextId?: string;
@@ -234,6 +222,14 @@ export interface WhichnumberSystemInfo {
 
   /** @format int64 */
   fifoTailId?: string;
+}
+
+export interface WhichnumberWinner {
+  player?: string;
+
+  /** @format uint64 */
+  proximity?: string;
+  reward?: string;
 }
 
 export type QueryParamsType = Record<string | number, any>;

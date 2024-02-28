@@ -5,6 +5,7 @@ package types
 
 import (
 	fmt "fmt"
+	_ "github.com/gogo/protobuf/gogoproto"
 	proto "github.com/gogo/protobuf/proto"
 	io "io"
 	math "math"
@@ -22,27 +23,28 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
-type EventNewGame struct {
-	Creator       string `protobuf:"bytes,1,opt,name=creator,proto3" json:"creator,omitempty"`
-	GameId        string `protobuf:"bytes,2,opt,name=game_id,json=gameId,proto3" json:"game_id,omitempty"`
-	EntryFee      string `protobuf:"bytes,3,opt,name=entry_fee,json=entryFee,proto3" json:"entry_fee,omitempty"`
-	MaxPlayers    uint64 `protobuf:"varint,4,opt,name=max_players,json=maxPlayers,proto3" json:"max_players,omitempty"`
-	Reward        string `protobuf:"bytes,5,opt,name=reward,proto3" json:"reward,omitempty"`
-	CommitTimeout string `protobuf:"bytes,6,opt,name=commit_timeout,json=commitTimeout,proto3" json:"commit_timeout,omitempty"`
+type EventGameNew struct {
+	Creator       string     `protobuf:"bytes,1,opt,name=creator,proto3" json:"creator,omitempty"`
+	GameId        string     `protobuf:"bytes,2,opt,name=game_id,json=gameId,proto3" json:"game_id,omitempty"`
+	EntryFee      string     `protobuf:"bytes,3,opt,name=entry_fee,json=entryFee,proto3" json:"entry_fee,omitempty"`
+	MaxPlayers    uint64     `protobuf:"varint,4,opt,name=max_players,json=maxPlayers,proto3" json:"max_players,omitempty"`
+	Reward        string     `protobuf:"bytes,5,opt,name=reward,proto3" json:"reward,omitempty"`
+	CommitTimeout string     `protobuf:"bytes,6,opt,name=commit_timeout,json=commitTimeout,proto3" json:"commit_timeout,omitempty"`
+	Status        GameStatus `protobuf:"varint,7,opt,name=status,proto3,enum=zale144.whichnumber.whichnumber.GameStatus" json:"status,omitempty"`
 }
 
-func (m *EventNewGame) Reset()         { *m = EventNewGame{} }
-func (m *EventNewGame) String() string { return proto.CompactTextString(m) }
-func (*EventNewGame) ProtoMessage()    {}
-func (*EventNewGame) Descriptor() ([]byte, []int) {
+func (m *EventGameNew) Reset()         { *m = EventGameNew{} }
+func (m *EventGameNew) String() string { return proto.CompactTextString(m) }
+func (*EventGameNew) ProtoMessage()    {}
+func (*EventGameNew) Descriptor() ([]byte, []int) {
 	return fileDescriptor_acb596e433f7e024, []int{0}
 }
-func (m *EventNewGame) XXX_Unmarshal(b []byte) error {
+func (m *EventGameNew) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-func (m *EventNewGame) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+func (m *EventGameNew) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
-		return xxx_messageInfo_EventNewGame.Marshal(b, m, deterministic)
+		return xxx_messageInfo_EventGameNew.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
 		n, err := m.MarshalToSizedBuffer(b)
@@ -52,78 +54,87 @@ func (m *EventNewGame) XXX_Marshal(b []byte, deterministic bool) ([]byte, error)
 		return b[:n], nil
 	}
 }
-func (m *EventNewGame) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_EventNewGame.Merge(m, src)
+func (m *EventGameNew) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_EventGameNew.Merge(m, src)
 }
-func (m *EventNewGame) XXX_Size() int {
+func (m *EventGameNew) XXX_Size() int {
 	return m.Size()
 }
-func (m *EventNewGame) XXX_DiscardUnknown() {
-	xxx_messageInfo_EventNewGame.DiscardUnknown(m)
+func (m *EventGameNew) XXX_DiscardUnknown() {
+	xxx_messageInfo_EventGameNew.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_EventNewGame proto.InternalMessageInfo
+var xxx_messageInfo_EventGameNew proto.InternalMessageInfo
 
-func (m *EventNewGame) GetCreator() string {
+func (m *EventGameNew) GetCreator() string {
 	if m != nil {
 		return m.Creator
 	}
 	return ""
 }
 
-func (m *EventNewGame) GetGameId() string {
+func (m *EventGameNew) GetGameId() string {
 	if m != nil {
 		return m.GameId
 	}
 	return ""
 }
 
-func (m *EventNewGame) GetEntryFee() string {
+func (m *EventGameNew) GetEntryFee() string {
 	if m != nil {
 		return m.EntryFee
 	}
 	return ""
 }
 
-func (m *EventNewGame) GetMaxPlayers() uint64 {
+func (m *EventGameNew) GetMaxPlayers() uint64 {
 	if m != nil {
 		return m.MaxPlayers
 	}
 	return 0
 }
 
-func (m *EventNewGame) GetReward() string {
+func (m *EventGameNew) GetReward() string {
 	if m != nil {
 		return m.Reward
 	}
 	return ""
 }
 
-func (m *EventNewGame) GetCommitTimeout() string {
+func (m *EventGameNew) GetCommitTimeout() string {
 	if m != nil {
 		return m.CommitTimeout
 	}
 	return ""
 }
 
-type EventRevealTimeout struct {
-	GameId          string `protobuf:"bytes,1,opt,name=game_id,json=gameId,proto3" json:"game_id,omitempty"`
-	RevealTimeout   string `protobuf:"bytes,2,opt,name=reveal_timeout,json=revealTimeout,proto3" json:"reveal_timeout,omitempty"`
-	NumberOfPlayers uint64 `protobuf:"varint,3,opt,name=number_of_players,json=numberOfPlayers,proto3" json:"number_of_players,omitempty"`
+func (m *EventGameNew) GetStatus() GameStatus {
+	if m != nil {
+		return m.Status
+	}
+	return GameStatus_GAME_STATUS_UNSPECIFIED
 }
 
-func (m *EventRevealTimeout) Reset()         { *m = EventRevealTimeout{} }
-func (m *EventRevealTimeout) String() string { return proto.CompactTextString(m) }
-func (*EventRevealTimeout) ProtoMessage()    {}
-func (*EventRevealTimeout) Descriptor() ([]byte, []int) {
+type EventGameNewCommit struct {
+	GameId          string `protobuf:"bytes,1,opt,name=game_id,json=gameId,proto3" json:"game_id,omitempty"`
+	Player          string `protobuf:"bytes,2,opt,name=player,proto3" json:"player,omitempty"`
+	Commit          string `protobuf:"bytes,3,opt,name=commit,proto3" json:"commit,omitempty"`
+	NumberOfCommits uint64 `protobuf:"varint,4,opt,name=number_of_commits,json=numberOfCommits,proto3" json:"number_of_commits,omitempty"`
+	Timestamp       string `protobuf:"bytes,5,opt,name=timestamp,proto3" json:"timestamp,omitempty"`
+}
+
+func (m *EventGameNewCommit) Reset()         { *m = EventGameNewCommit{} }
+func (m *EventGameNewCommit) String() string { return proto.CompactTextString(m) }
+func (*EventGameNewCommit) ProtoMessage()    {}
+func (*EventGameNewCommit) Descriptor() ([]byte, []int) {
 	return fileDescriptor_acb596e433f7e024, []int{1}
 }
-func (m *EventRevealTimeout) XXX_Unmarshal(b []byte) error {
+func (m *EventGameNewCommit) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-func (m *EventRevealTimeout) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+func (m *EventGameNewCommit) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
-		return xxx_messageInfo_EventRevealTimeout.Marshal(b, m, deterministic)
+		return xxx_messageInfo_EventGameNewCommit.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
 		n, err := m.MarshalToSizedBuffer(b)
@@ -133,35 +144,253 @@ func (m *EventRevealTimeout) XXX_Marshal(b []byte, deterministic bool) ([]byte, 
 		return b[:n], nil
 	}
 }
-func (m *EventRevealTimeout) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_EventRevealTimeout.Merge(m, src)
+func (m *EventGameNewCommit) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_EventGameNewCommit.Merge(m, src)
 }
-func (m *EventRevealTimeout) XXX_Size() int {
+func (m *EventGameNewCommit) XXX_Size() int {
 	return m.Size()
 }
-func (m *EventRevealTimeout) XXX_DiscardUnknown() {
-	xxx_messageInfo_EventRevealTimeout.DiscardUnknown(m)
+func (m *EventGameNewCommit) XXX_DiscardUnknown() {
+	xxx_messageInfo_EventGameNewCommit.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_EventRevealTimeout proto.InternalMessageInfo
+var xxx_messageInfo_EventGameNewCommit proto.InternalMessageInfo
 
-func (m *EventRevealTimeout) GetGameId() string {
+func (m *EventGameNewCommit) GetGameId() string {
 	if m != nil {
 		return m.GameId
 	}
 	return ""
 }
 
-func (m *EventRevealTimeout) GetRevealTimeout() string {
+func (m *EventGameNewCommit) GetPlayer() string {
+	if m != nil {
+		return m.Player
+	}
+	return ""
+}
+
+func (m *EventGameNewCommit) GetCommit() string {
+	if m != nil {
+		return m.Commit
+	}
+	return ""
+}
+
+func (m *EventGameNewCommit) GetNumberOfCommits() uint64 {
+	if m != nil {
+		return m.NumberOfCommits
+	}
+	return 0
+}
+
+func (m *EventGameNewCommit) GetTimestamp() string {
+	if m != nil {
+		return m.Timestamp
+	}
+	return ""
+}
+
+type EventGameNewReveal struct {
+	GameId          string `protobuf:"bytes,1,opt,name=game_id,json=gameId,proto3" json:"game_id,omitempty"`
+	Player          string `protobuf:"bytes,2,opt,name=player,proto3" json:"player,omitempty"`
+	Reveal          string `protobuf:"bytes,3,opt,name=reveal,proto3" json:"reveal,omitempty"`
+	NumberOfReveals uint64 `protobuf:"varint,4,opt,name=number_of_reveals,json=numberOfReveals,proto3" json:"number_of_reveals,omitempty"`
+	NumberOfCommits uint64 `protobuf:"varint,5,opt,name=number_of_commits,json=numberOfCommits,proto3" json:"number_of_commits,omitempty"`
+	Timestamp       string `protobuf:"bytes,6,opt,name=timestamp,proto3" json:"timestamp,omitempty"`
+}
+
+func (m *EventGameNewReveal) Reset()         { *m = EventGameNewReveal{} }
+func (m *EventGameNewReveal) String() string { return proto.CompactTextString(m) }
+func (*EventGameNewReveal) ProtoMessage()    {}
+func (*EventGameNewReveal) Descriptor() ([]byte, []int) {
+	return fileDescriptor_acb596e433f7e024, []int{2}
+}
+func (m *EventGameNewReveal) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *EventGameNewReveal) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_EventGameNewReveal.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *EventGameNewReveal) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_EventGameNewReveal.Merge(m, src)
+}
+func (m *EventGameNewReveal) XXX_Size() int {
+	return m.Size()
+}
+func (m *EventGameNewReveal) XXX_DiscardUnknown() {
+	xxx_messageInfo_EventGameNewReveal.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_EventGameNewReveal proto.InternalMessageInfo
+
+func (m *EventGameNewReveal) GetGameId() string {
+	if m != nil {
+		return m.GameId
+	}
+	return ""
+}
+
+func (m *EventGameNewReveal) GetPlayer() string {
+	if m != nil {
+		return m.Player
+	}
+	return ""
+}
+
+func (m *EventGameNewReveal) GetReveal() string {
+	if m != nil {
+		return m.Reveal
+	}
+	return ""
+}
+
+func (m *EventGameNewReveal) GetNumberOfReveals() uint64 {
+	if m != nil {
+		return m.NumberOfReveals
+	}
+	return 0
+}
+
+func (m *EventGameNewReveal) GetNumberOfCommits() uint64 {
+	if m != nil {
+		return m.NumberOfCommits
+	}
+	return 0
+}
+
+func (m *EventGameNewReveal) GetTimestamp() string {
+	if m != nil {
+		return m.Timestamp
+	}
+	return ""
+}
+
+type EventGameCommitFinished struct {
+	GameId          string `protobuf:"bytes,1,opt,name=game_id,json=gameId,proto3" json:"game_id,omitempty"`
+	CommitTimeout   string `protobuf:"bytes,2,opt,name=commit_timeout,json=commitTimeout,proto3" json:"commit_timeout,omitempty"`
+	NumberOfCommits uint64 `protobuf:"varint,3,opt,name=number_of_commits,json=numberOfCommits,proto3" json:"number_of_commits,omitempty"`
+}
+
+func (m *EventGameCommitFinished) Reset()         { *m = EventGameCommitFinished{} }
+func (m *EventGameCommitFinished) String() string { return proto.CompactTextString(m) }
+func (*EventGameCommitFinished) ProtoMessage()    {}
+func (*EventGameCommitFinished) Descriptor() ([]byte, []int) {
+	return fileDescriptor_acb596e433f7e024, []int{3}
+}
+func (m *EventGameCommitFinished) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *EventGameCommitFinished) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_EventGameCommitFinished.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *EventGameCommitFinished) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_EventGameCommitFinished.Merge(m, src)
+}
+func (m *EventGameCommitFinished) XXX_Size() int {
+	return m.Size()
+}
+func (m *EventGameCommitFinished) XXX_DiscardUnknown() {
+	xxx_messageInfo_EventGameCommitFinished.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_EventGameCommitFinished proto.InternalMessageInfo
+
+func (m *EventGameCommitFinished) GetGameId() string {
+	if m != nil {
+		return m.GameId
+	}
+	return ""
+}
+
+func (m *EventGameCommitFinished) GetCommitTimeout() string {
+	if m != nil {
+		return m.CommitTimeout
+	}
+	return ""
+}
+
+func (m *EventGameCommitFinished) GetNumberOfCommits() uint64 {
+	if m != nil {
+		return m.NumberOfCommits
+	}
+	return 0
+}
+
+type EventGameRevealFinished struct {
+	GameId          string `protobuf:"bytes,1,opt,name=game_id,json=gameId,proto3" json:"game_id,omitempty"`
+	RevealTimeout   string `protobuf:"bytes,2,opt,name=reveal_timeout,json=revealTimeout,proto3" json:"reveal_timeout,omitempty"`
+	NumberOfReveals uint64 `protobuf:"varint,3,opt,name=number_of_reveals,json=numberOfReveals,proto3" json:"number_of_reveals,omitempty"`
+}
+
+func (m *EventGameRevealFinished) Reset()         { *m = EventGameRevealFinished{} }
+func (m *EventGameRevealFinished) String() string { return proto.CompactTextString(m) }
+func (*EventGameRevealFinished) ProtoMessage()    {}
+func (*EventGameRevealFinished) Descriptor() ([]byte, []int) {
+	return fileDescriptor_acb596e433f7e024, []int{4}
+}
+func (m *EventGameRevealFinished) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *EventGameRevealFinished) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_EventGameRevealFinished.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *EventGameRevealFinished) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_EventGameRevealFinished.Merge(m, src)
+}
+func (m *EventGameRevealFinished) XXX_Size() int {
+	return m.Size()
+}
+func (m *EventGameRevealFinished) XXX_DiscardUnknown() {
+	xxx_messageInfo_EventGameRevealFinished.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_EventGameRevealFinished proto.InternalMessageInfo
+
+func (m *EventGameRevealFinished) GetGameId() string {
+	if m != nil {
+		return m.GameId
+	}
+	return ""
+}
+
+func (m *EventGameRevealFinished) GetRevealTimeout() string {
 	if m != nil {
 		return m.RevealTimeout
 	}
 	return ""
 }
 
-func (m *EventRevealTimeout) GetNumberOfPlayers() uint64 {
+func (m *EventGameRevealFinished) GetNumberOfReveals() uint64 {
 	if m != nil {
-		return m.NumberOfPlayers
+		return m.NumberOfReveals
 	}
 	return 0
 }
@@ -175,7 +404,7 @@ func (m *EventGameEnd) Reset()         { *m = EventGameEnd{} }
 func (m *EventGameEnd) String() string { return proto.CompactTextString(m) }
 func (*EventGameEnd) ProtoMessage()    {}
 func (*EventGameEnd) Descriptor() ([]byte, []int) {
-	return fileDescriptor_acb596e433f7e024, []int{2}
+	return fileDescriptor_acb596e433f7e024, []int{5}
 }
 func (m *EventGameEnd) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -218,24 +447,24 @@ func (m *EventGameEnd) GetWinners() []*Winner {
 	return nil
 }
 
-type Winner struct {
-	Player    string `protobuf:"bytes,1,opt,name=player,proto3" json:"player,omitempty"`
-	Proximity uint64 `protobuf:"varint,2,opt,name=proximity,proto3" json:"proximity,omitempty"`
-	Reward    string `protobuf:"bytes,3,opt,name=reward,proto3" json:"reward,omitempty"`
+type EventGameCreatorDeposit struct {
+	GameId  string `protobuf:"bytes,1,opt,name=game_id,json=gameId,proto3" json:"game_id,omitempty"`
+	Creator string `protobuf:"bytes,2,opt,name=creator,proto3" json:"creator,omitempty"`
+	Amount  string `protobuf:"bytes,3,opt,name=amount,proto3" json:"amount,omitempty"`
 }
 
-func (m *Winner) Reset()         { *m = Winner{} }
-func (m *Winner) String() string { return proto.CompactTextString(m) }
-func (*Winner) ProtoMessage()    {}
-func (*Winner) Descriptor() ([]byte, []int) {
-	return fileDescriptor_acb596e433f7e024, []int{3}
+func (m *EventGameCreatorDeposit) Reset()         { *m = EventGameCreatorDeposit{} }
+func (m *EventGameCreatorDeposit) String() string { return proto.CompactTextString(m) }
+func (*EventGameCreatorDeposit) ProtoMessage()    {}
+func (*EventGameCreatorDeposit) Descriptor() ([]byte, []int) {
+	return fileDescriptor_acb596e433f7e024, []int{6}
 }
-func (m *Winner) XXX_Unmarshal(b []byte) error {
+func (m *EventGameCreatorDeposit) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-func (m *Winner) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+func (m *EventGameCreatorDeposit) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
-		return xxx_messageInfo_Winner.Marshal(b, m, deterministic)
+		return xxx_messageInfo_EventGameCreatorDeposit.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
 		n, err := m.MarshalToSizedBuffer(b)
@@ -245,78 +474,199 @@ func (m *Winner) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 		return b[:n], nil
 	}
 }
-func (m *Winner) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_Winner.Merge(m, src)
+func (m *EventGameCreatorDeposit) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_EventGameCreatorDeposit.Merge(m, src)
 }
-func (m *Winner) XXX_Size() int {
+func (m *EventGameCreatorDeposit) XXX_Size() int {
 	return m.Size()
 }
-func (m *Winner) XXX_DiscardUnknown() {
-	xxx_messageInfo_Winner.DiscardUnknown(m)
+func (m *EventGameCreatorDeposit) XXX_DiscardUnknown() {
+	xxx_messageInfo_EventGameCreatorDeposit.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_Winner proto.InternalMessageInfo
+var xxx_messageInfo_EventGameCreatorDeposit proto.InternalMessageInfo
 
-func (m *Winner) GetPlayer() string {
+func (m *EventGameCreatorDeposit) GetGameId() string {
+	if m != nil {
+		return m.GameId
+	}
+	return ""
+}
+
+func (m *EventGameCreatorDeposit) GetCreator() string {
+	if m != nil {
+		return m.Creator
+	}
+	return ""
+}
+
+func (m *EventGameCreatorDeposit) GetAmount() string {
+	if m != nil {
+		return m.Amount
+	}
+	return ""
+}
+
+type EventGamePlayerDeposit struct {
+	GameId string `protobuf:"bytes,1,opt,name=game_id,json=gameId,proto3" json:"game_id,omitempty"`
+	Player string `protobuf:"bytes,2,opt,name=player,proto3" json:"player,omitempty"`
+	Amount string `protobuf:"bytes,3,opt,name=amount,proto3" json:"amount,omitempty"`
+}
+
+func (m *EventGamePlayerDeposit) Reset()         { *m = EventGamePlayerDeposit{} }
+func (m *EventGamePlayerDeposit) String() string { return proto.CompactTextString(m) }
+func (*EventGamePlayerDeposit) ProtoMessage()    {}
+func (*EventGamePlayerDeposit) Descriptor() ([]byte, []int) {
+	return fileDescriptor_acb596e433f7e024, []int{7}
+}
+func (m *EventGamePlayerDeposit) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *EventGamePlayerDeposit) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_EventGamePlayerDeposit.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *EventGamePlayerDeposit) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_EventGamePlayerDeposit.Merge(m, src)
+}
+func (m *EventGamePlayerDeposit) XXX_Size() int {
+	return m.Size()
+}
+func (m *EventGamePlayerDeposit) XXX_DiscardUnknown() {
+	xxx_messageInfo_EventGamePlayerDeposit.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_EventGamePlayerDeposit proto.InternalMessageInfo
+
+func (m *EventGamePlayerDeposit) GetGameId() string {
+	if m != nil {
+		return m.GameId
+	}
+	return ""
+}
+
+func (m *EventGamePlayerDeposit) GetPlayer() string {
 	if m != nil {
 		return m.Player
 	}
 	return ""
 }
 
-func (m *Winner) GetProximity() uint64 {
+func (m *EventGamePlayerDeposit) GetAmount() string {
 	if m != nil {
-		return m.Proximity
-	}
-	return 0
-}
-
-func (m *Winner) GetReward() string {
-	if m != nil {
-		return m.Reward
+		return m.Amount
 	}
 	return ""
 }
 
+type EventParamsUpdated struct {
+	Params Params `protobuf:"bytes,1,opt,name=params,proto3" json:"params"`
+}
+
+func (m *EventParamsUpdated) Reset()         { *m = EventParamsUpdated{} }
+func (m *EventParamsUpdated) String() string { return proto.CompactTextString(m) }
+func (*EventParamsUpdated) ProtoMessage()    {}
+func (*EventParamsUpdated) Descriptor() ([]byte, []int) {
+	return fileDescriptor_acb596e433f7e024, []int{8}
+}
+func (m *EventParamsUpdated) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *EventParamsUpdated) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_EventParamsUpdated.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *EventParamsUpdated) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_EventParamsUpdated.Merge(m, src)
+}
+func (m *EventParamsUpdated) XXX_Size() int {
+	return m.Size()
+}
+func (m *EventParamsUpdated) XXX_DiscardUnknown() {
+	xxx_messageInfo_EventParamsUpdated.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_EventParamsUpdated proto.InternalMessageInfo
+
+func (m *EventParamsUpdated) GetParams() Params {
+	if m != nil {
+		return m.Params
+	}
+	return Params{}
+}
+
 func init() {
-	proto.RegisterType((*EventNewGame)(nil), "zale144.whichnumber.whichnumber.EventNewGame")
-	proto.RegisterType((*EventRevealTimeout)(nil), "zale144.whichnumber.whichnumber.EventRevealTimeout")
+	proto.RegisterType((*EventGameNew)(nil), "zale144.whichnumber.whichnumber.EventGameNew")
+	proto.RegisterType((*EventGameNewCommit)(nil), "zale144.whichnumber.whichnumber.EventGameNewCommit")
+	proto.RegisterType((*EventGameNewReveal)(nil), "zale144.whichnumber.whichnumber.EventGameNewReveal")
+	proto.RegisterType((*EventGameCommitFinished)(nil), "zale144.whichnumber.whichnumber.EventGameCommitFinished")
+	proto.RegisterType((*EventGameRevealFinished)(nil), "zale144.whichnumber.whichnumber.EventGameRevealFinished")
 	proto.RegisterType((*EventGameEnd)(nil), "zale144.whichnumber.whichnumber.EventGameEnd")
-	proto.RegisterType((*Winner)(nil), "zale144.whichnumber.whichnumber.Winner")
+	proto.RegisterType((*EventGameCreatorDeposit)(nil), "zale144.whichnumber.whichnumber.EventGameCreatorDeposit")
+	proto.RegisterType((*EventGamePlayerDeposit)(nil), "zale144.whichnumber.whichnumber.EventGamePlayerDeposit")
+	proto.RegisterType((*EventParamsUpdated)(nil), "zale144.whichnumber.whichnumber.EventParamsUpdated")
 }
 
 func init() { proto.RegisterFile("whichnumber/event.proto", fileDescriptor_acb596e433f7e024) }
 
 var fileDescriptor_acb596e433f7e024 = []byte{
-	// 395 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x84, 0x52, 0xcd, 0xce, 0xd2, 0x40,
-	0x14, 0x65, 0xbe, 0x62, 0x91, 0x41, 0x30, 0xce, 0x42, 0x9a, 0x68, 0x0a, 0x69, 0x42, 0x24, 0x2e,
-	0x4a, 0x44, 0x5e, 0x40, 0x13, 0x34, 0x26, 0x46, 0x4d, 0x63, 0x34, 0x71, 0xd3, 0x0c, 0xed, 0x05,
-	0xc6, 0x30, 0x9d, 0x66, 0x18, 0x68, 0xeb, 0xca, 0x47, 0xf0, 0x89, 0x5c, 0xbb, 0x64, 0xe9, 0xd2,
-	0xc0, 0x8b, 0x98, 0xce, 0x14, 0x2c, 0x0b, 0xf3, 0xed, 0x7a, 0xce, 0xfd, 0x99, 0x73, 0x4e, 0x2f,
-	0xee, 0x67, 0x6b, 0x16, 0xad, 0x93, 0x1d, 0x5f, 0x80, 0x9c, 0xc0, 0x1e, 0x12, 0xe5, 0xa7, 0x52,
-	0x28, 0x41, 0x06, 0xdf, 0xe8, 0x06, 0x9e, 0xcd, 0x66, 0x7e, 0xad, 0xa1, 0xfe, 0xed, 0xfd, 0x44,
-	0xf8, 0xde, 0xbc, 0x1c, 0x78, 0x07, 0xd9, 0x6b, 0xca, 0x81, 0x38, 0xb8, 0x15, 0x49, 0xa0, 0x4a,
-	0x48, 0x07, 0x0d, 0xd1, 0xb8, 0x1d, 0x9c, 0x21, 0xe9, 0xe3, 0xd6, 0x8a, 0x72, 0x08, 0x59, 0xec,
-	0xdc, 0xe8, 0x8a, 0x5d, 0xc2, 0x37, 0x31, 0x79, 0x84, 0xdb, 0x90, 0x28, 0x59, 0x84, 0x4b, 0x00,
-	0xc7, 0xd2, 0xa5, 0xbb, 0x9a, 0x78, 0x05, 0x40, 0x06, 0xb8, 0xc3, 0x69, 0x1e, 0xa6, 0x1b, 0x5a,
-	0x80, 0xdc, 0x3a, 0xcd, 0x21, 0x1a, 0x37, 0x03, 0xcc, 0x69, 0xfe, 0xc1, 0x30, 0xe4, 0x21, 0xb6,
-	0x25, 0x64, 0x54, 0xc6, 0xce, 0x1d, 0xb3, 0xd5, 0x20, 0x32, 0xc2, 0xbd, 0x48, 0x70, 0xce, 0x54,
-	0xa8, 0x18, 0x07, 0xb1, 0x53, 0x8e, 0xad, 0xeb, 0x5d, 0xc3, 0x7e, 0x34, 0xa4, 0xf7, 0x1d, 0x61,
-	0xa2, 0x0d, 0x04, 0xb0, 0x07, 0xba, 0xa9, 0xe8, 0xba, 0x58, 0x74, 0x25, 0x76, 0x84, 0x7b, 0x52,
-	0x77, 0x5e, 0xd6, 0x1a, 0x33, 0x5d, 0x79, 0x35, 0xff, 0x14, 0x3f, 0x30, 0x09, 0x85, 0x62, 0x79,
-	0x11, 0x6f, 0x69, 0xf1, 0xf7, 0x4d, 0xe1, 0xfd, 0xb2, 0x72, 0xe0, 0x7d, 0xad, 0x22, 0x2c, 0xf3,
-	0x9b, 0x27, 0xf1, 0xff, 0xdf, 0x7e, 0x81, 0x5b, 0x19, 0x4b, 0x92, 0x72, 0xd5, 0xcd, 0xd0, 0x1a,
-	0x77, 0xa6, 0x4f, 0xfc, 0x5b, 0xfe, 0x8f, 0xff, 0x59, 0xf7, 0x07, 0xe7, 0x39, 0xef, 0x13, 0xb6,
-	0x0d, 0x55, 0xe6, 0x66, 0x74, 0x9d, 0x1f, 0x31, 0x88, 0x3c, 0xc6, 0xed, 0x54, 0x8a, 0x9c, 0x71,
-	0xa6, 0x0a, 0xed, 0xad, 0x19, 0xfc, 0x23, 0x6a, 0x69, 0x5b, 0xf5, 0xb4, 0x5f, 0xbe, 0xfd, 0x75,
-	0x74, 0xd1, 0xe1, 0xe8, 0xa2, 0x3f, 0x47, 0x17, 0xfd, 0x38, 0xb9, 0x8d, 0xc3, 0xc9, 0x6d, 0xfc,
-	0x3e, 0xb9, 0x8d, 0x2f, 0xd3, 0x15, 0x53, 0xeb, 0xdd, 0xc2, 0x8f, 0x04, 0x9f, 0x54, 0x6a, 0x27,
-	0xf5, 0x73, 0xcb, 0xaf, 0x90, 0x2a, 0x52, 0xd8, 0x2e, 0x6c, 0x7d, 0x7d, 0xcf, 0xff, 0x06, 0x00,
-	0x00, 0xff, 0xff, 0xdb, 0xb4, 0xd4, 0x7c, 0x98, 0x02, 0x00, 0x00,
+	// 587 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x9c, 0x54, 0xd1, 0x8e, 0xd2, 0x5c,
+	0x10, 0xa6, 0xc0, 0x96, 0x9f, 0xb3, 0xbf, 0x6b, 0x3c, 0x31, 0xd0, 0xac, 0xa6, 0x90, 0x26, 0x46,
+	0xa2, 0x09, 0x44, 0xdc, 0x17, 0x70, 0x57, 0xd6, 0x98, 0x18, 0xdd, 0x54, 0x8d, 0x89, 0x5e, 0x34,
+	0x07, 0x3a, 0x40, 0x0d, 0xa7, 0x6d, 0xda, 0xc3, 0x02, 0xde, 0x1a, 0xef, 0x7d, 0x0b, 0x5f, 0x65,
+	0x2f, 0x37, 0xf1, 0xc6, 0x2b, 0x63, 0xe0, 0x45, 0x4c, 0xcf, 0xb4, 0x58, 0xa0, 0x02, 0xf1, 0xae,
+	0xf3, 0x4d, 0xe7, 0xcc, 0xf7, 0x7d, 0x99, 0x19, 0x52, 0x9d, 0x0c, 0x9d, 0xde, 0xd0, 0x1d, 0xf3,
+	0x2e, 0x04, 0x2d, 0xb8, 0x04, 0x57, 0x34, 0xfd, 0xc0, 0x13, 0x1e, 0xad, 0x7d, 0x62, 0x23, 0x78,
+	0x74, 0x72, 0xd2, 0x4c, 0xfd, 0x90, 0xfe, 0x3e, 0x5e, 0xa9, 0x14, 0x33, 0x1f, 0x42, 0xac, 0x3c,
+	0xd6, 0xd2, 0x09, 0x9f, 0x05, 0x8c, 0x27, 0x99, 0xdb, 0x03, 0x6f, 0xe0, 0xc9, 0xcf, 0x56, 0xf4,
+	0x85, 0xa8, 0xf1, 0x39, 0x4f, 0xfe, 0xef, 0x44, 0x9d, 0x9f, 0x31, 0x0e, 0x2f, 0x61, 0x42, 0x35,
+	0x52, 0xea, 0x05, 0xc0, 0x84, 0x17, 0x68, 0x4a, 0x5d, 0x69, 0x94, 0xcd, 0x24, 0xa4, 0x55, 0x52,
+	0x1a, 0x30, 0x0e, 0x96, 0x63, 0x6b, 0x79, 0x99, 0x51, 0xa3, 0xf0, 0xb9, 0x4d, 0xef, 0x90, 0x32,
+	0xb8, 0x22, 0x98, 0x59, 0x7d, 0x00, 0xad, 0x20, 0x53, 0xff, 0x49, 0xe0, 0x1c, 0x80, 0xd6, 0xc8,
+	0x21, 0x67, 0x53, 0xcb, 0x1f, 0xb1, 0x19, 0x04, 0xa1, 0x56, 0xac, 0x2b, 0x8d, 0xa2, 0x49, 0x38,
+	0x9b, 0x5e, 0x20, 0x42, 0x2b, 0x44, 0x0d, 0x60, 0xc2, 0x02, 0x5b, 0x3b, 0xc0, 0x57, 0x31, 0xa2,
+	0xf7, 0xc8, 0x51, 0xcf, 0xe3, 0xdc, 0x11, 0x96, 0x70, 0x38, 0x78, 0x63, 0xa1, 0xa9, 0x32, 0x7f,
+	0x03, 0xd1, 0x37, 0x08, 0xd2, 0x33, 0xa2, 0x86, 0x82, 0x89, 0x71, 0xa8, 0x95, 0xea, 0x4a, 0xe3,
+	0xa8, 0xfd, 0xb0, 0xb9, 0xc3, 0xbb, 0x66, 0xa4, 0xf4, 0xb5, 0x2c, 0x31, 0xe3, 0x52, 0xe3, 0x9b,
+	0x42, 0x68, 0xda, 0x85, 0x33, 0xd9, 0x22, 0xad, 0x58, 0x59, 0x51, 0x5c, 0x21, 0x2a, 0x0a, 0x4a,
+	0x9c, 0xc0, 0x28, 0xc2, 0x91, 0x5d, 0x6c, 0x43, 0x1c, 0xd1, 0x07, 0xe4, 0x16, 0x36, 0xb7, 0xbc,
+	0xbe, 0x85, 0x58, 0x62, 0xc5, 0x4d, 0x4c, 0xbc, 0xea, 0x63, 0xcf, 0x90, 0xde, 0x25, 0xe5, 0x48,
+	0x70, 0x28, 0x18, 0xf7, 0x63, 0x4b, 0xfe, 0x00, 0xc6, 0xf7, 0x35, 0xa6, 0x26, 0x5c, 0x02, 0x1b,
+	0xfd, 0x13, 0xd3, 0x40, 0x96, 0x26, 0x4c, 0x31, 0x5a, 0x65, 0x8a, 0xd8, 0x06, 0x53, 0xec, 0x19,
+	0x66, 0xab, 0x3a, 0xd8, 0x43, 0x95, 0xba, 0xae, 0xea, 0x8b, 0x42, 0xaa, 0x4b, 0x55, 0x58, 0x72,
+	0xee, 0xb8, 0x4e, 0x38, 0x04, 0xfb, 0xef, 0xd2, 0x36, 0x07, 0x24, 0x9f, 0x35, 0x20, 0x99, 0x2c,
+	0x0b, 0x99, 0x2c, 0x57, 0x79, 0xa0, 0xcc, 0xbd, 0x78, 0xa0, 0x51, 0xeb, 0x3c, 0x10, 0xcd, 0xe4,
+	0x91, 0x38, 0x5b, 0xc8, 0x74, 0xd6, 0xf8, 0x98, 0x5a, 0xca, 0x8e, 0xbb, 0xa5, 0xf7, 0x13, 0x52,
+	0x9a, 0x38, 0xae, 0x1b, 0x6d, 0x56, 0xbe, 0x5e, 0x68, 0x1c, 0xb6, 0xef, 0xef, 0x1c, 0xff, 0x77,
+	0xf2, 0x7f, 0x33, 0xa9, 0x33, 0xec, 0xb4, 0xf5, 0xb8, 0xea, 0x4f, 0xc1, 0xf7, 0xc2, 0x6d, 0xf3,
+	0x9f, 0x3a, 0x12, 0xf9, 0xd5, 0x23, 0x51, 0x21, 0x2a, 0xe3, 0xde, 0xd8, 0x5d, 0x6e, 0x00, 0x46,
+	0x06, 0x23, 0x95, 0x65, 0x17, 0xdc, 0xfc, 0x9d, 0x4d, 0xb6, 0x8c, 0x6e, 0x66, 0x8b, 0x0f, 0xf1,
+	0x66, 0x5c, 0xc8, 0xab, 0xf7, 0xd6, 0xb7, 0x99, 0x00, 0x9b, 0x76, 0x88, 0x8a, 0x67, 0x50, 0xbe,
+	0xbe, 0x8f, 0x41, 0x58, 0x7f, 0x5a, 0xbc, 0xfa, 0x59, 0xcb, 0x99, 0x71, 0xf1, 0xe9, 0x8b, 0xab,
+	0xb9, 0xae, 0x5c, 0xcf, 0x75, 0xe5, 0xd7, 0x5c, 0x57, 0xbe, 0x2e, 0xf4, 0xdc, 0xf5, 0x42, 0xcf,
+	0xfd, 0x58, 0xe8, 0xb9, 0xf7, 0xed, 0x81, 0x23, 0x86, 0xe3, 0x6e, 0xb3, 0xe7, 0xf1, 0x56, 0xfc,
+	0x74, 0x2b, 0x7d, 0x84, 0xa7, 0xad, 0x8d, 0x5b, 0xdd, 0x55, 0xe5, 0xf1, 0x7d, 0xfc, 0x3b, 0x00,
+	0x00, 0xff, 0xff, 0x4f, 0xb1, 0x07, 0xcf, 0x01, 0x06, 0x00, 0x00,
 }
 
-func (m *EventNewGame) Marshal() (dAtA []byte, err error) {
+func (m *EventGameNew) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
 	n, err := m.MarshalToSizedBuffer(dAtA[:size])
@@ -326,16 +676,21 @@ func (m *EventNewGame) Marshal() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *EventNewGame) MarshalTo(dAtA []byte) (int, error) {
+func (m *EventGameNew) MarshalTo(dAtA []byte) (int, error) {
 	size := m.Size()
 	return m.MarshalToSizedBuffer(dAtA[:size])
 }
 
-func (m *EventNewGame) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+func (m *EventGameNew) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
+	if m.Status != 0 {
+		i = encodeVarintEvent(dAtA, i, uint64(m.Status))
+		i--
+		dAtA[i] = 0x38
+	}
 	if len(m.CommitTimeout) > 0 {
 		i -= len(m.CommitTimeout)
 		copy(dAtA[i:], m.CommitTimeout)
@@ -379,7 +734,7 @@ func (m *EventNewGame) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	return len(dAtA) - i, nil
 }
 
-func (m *EventRevealTimeout) Marshal() (dAtA []byte, err error) {
+func (m *EventGameNewCommit) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
 	n, err := m.MarshalToSizedBuffer(dAtA[:size])
@@ -389,18 +744,177 @@ func (m *EventRevealTimeout) Marshal() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *EventRevealTimeout) MarshalTo(dAtA []byte) (int, error) {
+func (m *EventGameNewCommit) MarshalTo(dAtA []byte) (int, error) {
 	size := m.Size()
 	return m.MarshalToSizedBuffer(dAtA[:size])
 }
 
-func (m *EventRevealTimeout) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+func (m *EventGameNewCommit) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	if m.NumberOfPlayers != 0 {
-		i = encodeVarintEvent(dAtA, i, uint64(m.NumberOfPlayers))
+	if len(m.Timestamp) > 0 {
+		i -= len(m.Timestamp)
+		copy(dAtA[i:], m.Timestamp)
+		i = encodeVarintEvent(dAtA, i, uint64(len(m.Timestamp)))
+		i--
+		dAtA[i] = 0x2a
+	}
+	if m.NumberOfCommits != 0 {
+		i = encodeVarintEvent(dAtA, i, uint64(m.NumberOfCommits))
+		i--
+		dAtA[i] = 0x20
+	}
+	if len(m.Commit) > 0 {
+		i -= len(m.Commit)
+		copy(dAtA[i:], m.Commit)
+		i = encodeVarintEvent(dAtA, i, uint64(len(m.Commit)))
+		i--
+		dAtA[i] = 0x1a
+	}
+	if len(m.Player) > 0 {
+		i -= len(m.Player)
+		copy(dAtA[i:], m.Player)
+		i = encodeVarintEvent(dAtA, i, uint64(len(m.Player)))
+		i--
+		dAtA[i] = 0x12
+	}
+	if len(m.GameId) > 0 {
+		i -= len(m.GameId)
+		copy(dAtA[i:], m.GameId)
+		i = encodeVarintEvent(dAtA, i, uint64(len(m.GameId)))
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
+}
+
+func (m *EventGameNewReveal) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *EventGameNewReveal) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *EventGameNewReveal) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if len(m.Timestamp) > 0 {
+		i -= len(m.Timestamp)
+		copy(dAtA[i:], m.Timestamp)
+		i = encodeVarintEvent(dAtA, i, uint64(len(m.Timestamp)))
+		i--
+		dAtA[i] = 0x32
+	}
+	if m.NumberOfCommits != 0 {
+		i = encodeVarintEvent(dAtA, i, uint64(m.NumberOfCommits))
+		i--
+		dAtA[i] = 0x28
+	}
+	if m.NumberOfReveals != 0 {
+		i = encodeVarintEvent(dAtA, i, uint64(m.NumberOfReveals))
+		i--
+		dAtA[i] = 0x20
+	}
+	if len(m.Reveal) > 0 {
+		i -= len(m.Reveal)
+		copy(dAtA[i:], m.Reveal)
+		i = encodeVarintEvent(dAtA, i, uint64(len(m.Reveal)))
+		i--
+		dAtA[i] = 0x1a
+	}
+	if len(m.Player) > 0 {
+		i -= len(m.Player)
+		copy(dAtA[i:], m.Player)
+		i = encodeVarintEvent(dAtA, i, uint64(len(m.Player)))
+		i--
+		dAtA[i] = 0x12
+	}
+	if len(m.GameId) > 0 {
+		i -= len(m.GameId)
+		copy(dAtA[i:], m.GameId)
+		i = encodeVarintEvent(dAtA, i, uint64(len(m.GameId)))
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
+}
+
+func (m *EventGameCommitFinished) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *EventGameCommitFinished) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *EventGameCommitFinished) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if m.NumberOfCommits != 0 {
+		i = encodeVarintEvent(dAtA, i, uint64(m.NumberOfCommits))
+		i--
+		dAtA[i] = 0x18
+	}
+	if len(m.CommitTimeout) > 0 {
+		i -= len(m.CommitTimeout)
+		copy(dAtA[i:], m.CommitTimeout)
+		i = encodeVarintEvent(dAtA, i, uint64(len(m.CommitTimeout)))
+		i--
+		dAtA[i] = 0x12
+	}
+	if len(m.GameId) > 0 {
+		i -= len(m.GameId)
+		copy(dAtA[i:], m.GameId)
+		i = encodeVarintEvent(dAtA, i, uint64(len(m.GameId)))
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
+}
+
+func (m *EventGameRevealFinished) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *EventGameRevealFinished) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *EventGameRevealFinished) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if m.NumberOfReveals != 0 {
+		i = encodeVarintEvent(dAtA, i, uint64(m.NumberOfReveals))
 		i--
 		dAtA[i] = 0x18
 	}
@@ -465,7 +979,7 @@ func (m *EventGameEnd) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	return len(dAtA) - i, nil
 }
 
-func (m *Winner) Marshal() (dAtA []byte, err error) {
+func (m *EventGameCreatorDeposit) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
 	n, err := m.MarshalToSizedBuffer(dAtA[:size])
@@ -475,35 +989,114 @@ func (m *Winner) Marshal() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *Winner) MarshalTo(dAtA []byte) (int, error) {
+func (m *EventGameCreatorDeposit) MarshalTo(dAtA []byte) (int, error) {
 	size := m.Size()
 	return m.MarshalToSizedBuffer(dAtA[:size])
 }
 
-func (m *Winner) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+func (m *EventGameCreatorDeposit) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	if len(m.Reward) > 0 {
-		i -= len(m.Reward)
-		copy(dAtA[i:], m.Reward)
-		i = encodeVarintEvent(dAtA, i, uint64(len(m.Reward)))
+	if len(m.Amount) > 0 {
+		i -= len(m.Amount)
+		copy(dAtA[i:], m.Amount)
+		i = encodeVarintEvent(dAtA, i, uint64(len(m.Amount)))
 		i--
 		dAtA[i] = 0x1a
 	}
-	if m.Proximity != 0 {
-		i = encodeVarintEvent(dAtA, i, uint64(m.Proximity))
+	if len(m.Creator) > 0 {
+		i -= len(m.Creator)
+		copy(dAtA[i:], m.Creator)
+		i = encodeVarintEvent(dAtA, i, uint64(len(m.Creator)))
 		i--
-		dAtA[i] = 0x10
+		dAtA[i] = 0x12
+	}
+	if len(m.GameId) > 0 {
+		i -= len(m.GameId)
+		copy(dAtA[i:], m.GameId)
+		i = encodeVarintEvent(dAtA, i, uint64(len(m.GameId)))
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
+}
+
+func (m *EventGamePlayerDeposit) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *EventGamePlayerDeposit) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *EventGamePlayerDeposit) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if len(m.Amount) > 0 {
+		i -= len(m.Amount)
+		copy(dAtA[i:], m.Amount)
+		i = encodeVarintEvent(dAtA, i, uint64(len(m.Amount)))
+		i--
+		dAtA[i] = 0x1a
 	}
 	if len(m.Player) > 0 {
 		i -= len(m.Player)
 		copy(dAtA[i:], m.Player)
 		i = encodeVarintEvent(dAtA, i, uint64(len(m.Player)))
 		i--
+		dAtA[i] = 0x12
+	}
+	if len(m.GameId) > 0 {
+		i -= len(m.GameId)
+		copy(dAtA[i:], m.GameId)
+		i = encodeVarintEvent(dAtA, i, uint64(len(m.GameId)))
+		i--
 		dAtA[i] = 0xa
 	}
+	return len(dAtA) - i, nil
+}
+
+func (m *EventParamsUpdated) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *EventParamsUpdated) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *EventParamsUpdated) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	{
+		size, err := m.Params.MarshalToSizedBuffer(dAtA[:i])
+		if err != nil {
+			return 0, err
+		}
+		i -= size
+		i = encodeVarintEvent(dAtA, i, uint64(size))
+	}
+	i--
+	dAtA[i] = 0xa
 	return len(dAtA) - i, nil
 }
 
@@ -518,7 +1111,7 @@ func encodeVarintEvent(dAtA []byte, offset int, v uint64) int {
 	dAtA[offset] = uint8(v)
 	return base
 }
-func (m *EventNewGame) Size() (n int) {
+func (m *EventGameNew) Size() (n int) {
 	if m == nil {
 		return 0
 	}
@@ -547,10 +1140,92 @@ func (m *EventNewGame) Size() (n int) {
 	if l > 0 {
 		n += 1 + l + sovEvent(uint64(l))
 	}
+	if m.Status != 0 {
+		n += 1 + sovEvent(uint64(m.Status))
+	}
 	return n
 }
 
-func (m *EventRevealTimeout) Size() (n int) {
+func (m *EventGameNewCommit) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	l = len(m.GameId)
+	if l > 0 {
+		n += 1 + l + sovEvent(uint64(l))
+	}
+	l = len(m.Player)
+	if l > 0 {
+		n += 1 + l + sovEvent(uint64(l))
+	}
+	l = len(m.Commit)
+	if l > 0 {
+		n += 1 + l + sovEvent(uint64(l))
+	}
+	if m.NumberOfCommits != 0 {
+		n += 1 + sovEvent(uint64(m.NumberOfCommits))
+	}
+	l = len(m.Timestamp)
+	if l > 0 {
+		n += 1 + l + sovEvent(uint64(l))
+	}
+	return n
+}
+
+func (m *EventGameNewReveal) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	l = len(m.GameId)
+	if l > 0 {
+		n += 1 + l + sovEvent(uint64(l))
+	}
+	l = len(m.Player)
+	if l > 0 {
+		n += 1 + l + sovEvent(uint64(l))
+	}
+	l = len(m.Reveal)
+	if l > 0 {
+		n += 1 + l + sovEvent(uint64(l))
+	}
+	if m.NumberOfReveals != 0 {
+		n += 1 + sovEvent(uint64(m.NumberOfReveals))
+	}
+	if m.NumberOfCommits != 0 {
+		n += 1 + sovEvent(uint64(m.NumberOfCommits))
+	}
+	l = len(m.Timestamp)
+	if l > 0 {
+		n += 1 + l + sovEvent(uint64(l))
+	}
+	return n
+}
+
+func (m *EventGameCommitFinished) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	l = len(m.GameId)
+	if l > 0 {
+		n += 1 + l + sovEvent(uint64(l))
+	}
+	l = len(m.CommitTimeout)
+	if l > 0 {
+		n += 1 + l + sovEvent(uint64(l))
+	}
+	if m.NumberOfCommits != 0 {
+		n += 1 + sovEvent(uint64(m.NumberOfCommits))
+	}
+	return n
+}
+
+func (m *EventGameRevealFinished) Size() (n int) {
 	if m == nil {
 		return 0
 	}
@@ -564,8 +1239,8 @@ func (m *EventRevealTimeout) Size() (n int) {
 	if l > 0 {
 		n += 1 + l + sovEvent(uint64(l))
 	}
-	if m.NumberOfPlayers != 0 {
-		n += 1 + sovEvent(uint64(m.NumberOfPlayers))
+	if m.NumberOfReveals != 0 {
+		n += 1 + sovEvent(uint64(m.NumberOfReveals))
 	}
 	return n
 }
@@ -589,23 +1264,56 @@ func (m *EventGameEnd) Size() (n int) {
 	return n
 }
 
-func (m *Winner) Size() (n int) {
+func (m *EventGameCreatorDeposit) Size() (n int) {
 	if m == nil {
 		return 0
 	}
 	var l int
 	_ = l
+	l = len(m.GameId)
+	if l > 0 {
+		n += 1 + l + sovEvent(uint64(l))
+	}
+	l = len(m.Creator)
+	if l > 0 {
+		n += 1 + l + sovEvent(uint64(l))
+	}
+	l = len(m.Amount)
+	if l > 0 {
+		n += 1 + l + sovEvent(uint64(l))
+	}
+	return n
+}
+
+func (m *EventGamePlayerDeposit) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	l = len(m.GameId)
+	if l > 0 {
+		n += 1 + l + sovEvent(uint64(l))
+	}
 	l = len(m.Player)
 	if l > 0 {
 		n += 1 + l + sovEvent(uint64(l))
 	}
-	if m.Proximity != 0 {
-		n += 1 + sovEvent(uint64(m.Proximity))
-	}
-	l = len(m.Reward)
+	l = len(m.Amount)
 	if l > 0 {
 		n += 1 + l + sovEvent(uint64(l))
 	}
+	return n
+}
+
+func (m *EventParamsUpdated) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	l = m.Params.Size()
+	n += 1 + l + sovEvent(uint64(l))
 	return n
 }
 
@@ -615,7 +1323,7 @@ func sovEvent(x uint64) (n int) {
 func sozEvent(x uint64) (n int) {
 	return sovEvent(uint64((x << 1) ^ uint64((int64(x) >> 63))))
 }
-func (m *EventNewGame) Unmarshal(dAtA []byte) error {
+func (m *EventGameNew) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -638,10 +1346,10 @@ func (m *EventNewGame) Unmarshal(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: EventNewGame: wiretype end group for non-group")
+			return fmt.Errorf("proto: EventGameNew: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: EventNewGame: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: EventGameNew: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		case 1:
@@ -823,6 +1531,25 @@ func (m *EventNewGame) Unmarshal(dAtA []byte) error {
 			}
 			m.CommitTimeout = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
+		case 7:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Status", wireType)
+			}
+			m.Status = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowEvent
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.Status |= GameStatus(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
 		default:
 			iNdEx = preIndex
 			skippy, err := skipEvent(dAtA[iNdEx:])
@@ -844,7 +1571,7 @@ func (m *EventNewGame) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
-func (m *EventRevealTimeout) Unmarshal(dAtA []byte) error {
+func (m *EventGameNewCommit) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -867,10 +1594,556 @@ func (m *EventRevealTimeout) Unmarshal(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: EventRevealTimeout: wiretype end group for non-group")
+			return fmt.Errorf("proto: EventGameNewCommit: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: EventRevealTimeout: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: EventGameNewCommit: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field GameId", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowEvent
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthEvent
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthEvent
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.GameId = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Player", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowEvent
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthEvent
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthEvent
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Player = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 3:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Commit", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowEvent
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthEvent
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthEvent
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Commit = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 4:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field NumberOfCommits", wireType)
+			}
+			m.NumberOfCommits = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowEvent
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.NumberOfCommits |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 5:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Timestamp", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowEvent
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthEvent
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthEvent
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Timestamp = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipEvent(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthEvent
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *EventGameNewReveal) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowEvent
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: EventGameNewReveal: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: EventGameNewReveal: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field GameId", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowEvent
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthEvent
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthEvent
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.GameId = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Player", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowEvent
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthEvent
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthEvent
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Player = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 3:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Reveal", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowEvent
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthEvent
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthEvent
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Reveal = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 4:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field NumberOfReveals", wireType)
+			}
+			m.NumberOfReveals = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowEvent
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.NumberOfReveals |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 5:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field NumberOfCommits", wireType)
+			}
+			m.NumberOfCommits = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowEvent
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.NumberOfCommits |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 6:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Timestamp", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowEvent
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthEvent
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthEvent
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Timestamp = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipEvent(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthEvent
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *EventGameCommitFinished) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowEvent
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: EventGameCommitFinished: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: EventGameCommitFinished: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field GameId", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowEvent
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthEvent
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthEvent
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.GameId = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field CommitTimeout", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowEvent
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthEvent
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthEvent
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.CommitTimeout = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 3:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field NumberOfCommits", wireType)
+			}
+			m.NumberOfCommits = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowEvent
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.NumberOfCommits |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		default:
+			iNdEx = preIndex
+			skippy, err := skipEvent(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthEvent
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *EventGameRevealFinished) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowEvent
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: EventGameRevealFinished: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: EventGameRevealFinished: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		case 1:
@@ -939,9 +2212,9 @@ func (m *EventRevealTimeout) Unmarshal(dAtA []byte) error {
 			iNdEx = postIndex
 		case 3:
 			if wireType != 0 {
-				return fmt.Errorf("proto: wrong wireType = %d for field NumberOfPlayers", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field NumberOfReveals", wireType)
 			}
-			m.NumberOfPlayers = 0
+			m.NumberOfReveals = 0
 			for shift := uint(0); ; shift += 7 {
 				if shift >= 64 {
 					return ErrIntOverflowEvent
@@ -951,7 +2224,7 @@ func (m *EventRevealTimeout) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.NumberOfPlayers |= uint64(b&0x7F) << shift
+				m.NumberOfReveals |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -1093,7 +2366,7 @@ func (m *EventGameEnd) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
-func (m *Winner) Unmarshal(dAtA []byte) error {
+func (m *EventGameCreatorDeposit) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -1116,13 +2389,191 @@ func (m *Winner) Unmarshal(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: Winner: wiretype end group for non-group")
+			return fmt.Errorf("proto: EventGameCreatorDeposit: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: Winner: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: EventGameCreatorDeposit: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field GameId", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowEvent
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthEvent
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthEvent
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.GameId = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Creator", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowEvent
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthEvent
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthEvent
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Creator = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 3:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Amount", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowEvent
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthEvent
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthEvent
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Amount = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipEvent(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthEvent
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *EventGamePlayerDeposit) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowEvent
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: EventGamePlayerDeposit: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: EventGamePlayerDeposit: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field GameId", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowEvent
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthEvent
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthEvent
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.GameId = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 2:
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field Player", wireType)
 			}
@@ -1154,28 +2605,9 @@ func (m *Winner) Unmarshal(dAtA []byte) error {
 			}
 			m.Player = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
-		case 2:
-			if wireType != 0 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Proximity", wireType)
-			}
-			m.Proximity = 0
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowEvent
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				m.Proximity |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
 		case 3:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Reward", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field Amount", wireType)
 			}
 			var stringLen uint64
 			for shift := uint(0); ; shift += 7 {
@@ -1203,7 +2635,90 @@ func (m *Winner) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.Reward = string(dAtA[iNdEx:postIndex])
+			m.Amount = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipEvent(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthEvent
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *EventParamsUpdated) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowEvent
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: EventParamsUpdated: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: EventParamsUpdated: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Params", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowEvent
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthEvent
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthEvent
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if err := m.Params.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
 			iNdEx = postIndex
 		default:
 			iNdEx = preIndex

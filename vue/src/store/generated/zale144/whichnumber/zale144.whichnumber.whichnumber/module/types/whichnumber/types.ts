@@ -6,6 +6,51 @@ import { Coin } from "../cosmos/base/v1beta1/coin";
 
 export const protobufPackage = "zale144.whichnumber.whichnumber";
 
+/** GameStatus is the status of the game */
+export enum GameStatus {
+  GAME_STATUS_UNSPECIFIED = 0,
+  GAME_STATUS_COMMITTING = 1,
+  GAME_STATUS_REVEALING = 2,
+  GAME_STATUS_FINISHED = 3,
+  UNRECOGNIZED = -1,
+}
+
+export function gameStatusFromJSON(object: any): GameStatus {
+  switch (object) {
+    case 0:
+    case "GAME_STATUS_UNSPECIFIED":
+      return GameStatus.GAME_STATUS_UNSPECIFIED;
+    case 1:
+    case "GAME_STATUS_COMMITTING":
+      return GameStatus.GAME_STATUS_COMMITTING;
+    case 2:
+    case "GAME_STATUS_REVEALING":
+      return GameStatus.GAME_STATUS_REVEALING;
+    case 3:
+    case "GAME_STATUS_FINISHED":
+      return GameStatus.GAME_STATUS_FINISHED;
+    case -1:
+    case "UNRECOGNIZED":
+    default:
+      return GameStatus.UNRECOGNIZED;
+  }
+}
+
+export function gameStatusToJSON(object: GameStatus): string {
+  switch (object) {
+    case GameStatus.GAME_STATUS_UNSPECIFIED:
+      return "GAME_STATUS_UNSPECIFIED";
+    case GameStatus.GAME_STATUS_COMMITTING:
+      return "GAME_STATUS_COMMITTING";
+    case GameStatus.GAME_STATUS_REVEALING:
+      return "GAME_STATUS_REVEALING";
+    case GameStatus.GAME_STATUS_FINISHED:
+      return "GAME_STATUS_FINISHED";
+    default:
+      return "UNKNOWN";
+  }
+}
+
 export interface Game {
   id: number;
   /** Address of the player who created the game */
@@ -21,15 +66,17 @@ export interface Game {
   entry_fee: Coin | undefined;
   commit_timeout: Date | undefined;
   reveal_timeout: Date | undefined;
+  status: GameStatus;
+  winners: Winner[];
   beforeId: number;
   afterId: number;
 }
 
 export interface NumberCommit {
-  /** hex encoded sha256 of "salt:number" */
-  commit: string;
   /** Address of the player who submitted the guess */
   player_address: string;
+  /** hex encoded sha256 of "salt:number" */
+  commit: string;
   created_at: Date | undefined;
 }
 
@@ -38,13 +85,22 @@ export interface NumberReveal {
   number: number;
   /** hex encoded 32 bytes salt */
   salt: string;
+  is_winner: boolean;
+  proximity: number;
   created_at: Date | undefined;
+}
+
+export interface Winner {
+  player: string;
+  proximity: number;
+  reward: string;
 }
 
 const baseGame: object = {
   id: 0,
   creator: "",
   secret_number: 0,
+  status: 0,
   beforeId: 0,
   afterId: 0,
 };
@@ -84,11 +140,17 @@ export const Game = {
         writer.uint32(74).fork()
       ).ldelim();
     }
+    if (message.status !== 0) {
+      writer.uint32(80).int32(message.status);
+    }
+    for (const v of message.winners) {
+      Winner.encode(v!, writer.uint32(90).fork()).ldelim();
+    }
     if (message.beforeId !== 0) {
-      writer.uint32(80).int64(message.beforeId);
+      writer.uint32(96).int64(message.beforeId);
     }
     if (message.afterId !== 0) {
-      writer.uint32(88).int64(message.afterId);
+      writer.uint32(104).int64(message.afterId);
     }
     return writer;
   },
@@ -99,6 +161,7 @@ export const Game = {
     const message = { ...baseGame } as Game;
     message.player_commits = [];
     message.player_reveals = [];
+    message.winners = [];
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -138,9 +201,15 @@ export const Game = {
           );
           break;
         case 10:
-          message.beforeId = longToNumber(reader.int64() as Long);
+          message.status = reader.int32() as any;
           break;
         case 11:
+          message.winners.push(Winner.decode(reader, reader.uint32()));
+          break;
+        case 12:
+          message.beforeId = longToNumber(reader.int64() as Long);
+          break;
+        case 13:
           message.afterId = longToNumber(reader.int64() as Long);
           break;
         default:
@@ -155,6 +224,7 @@ export const Game = {
     const message = { ...baseGame } as Game;
     message.player_commits = [];
     message.player_reveals = [];
+    message.winners = [];
     if (object.id !== undefined && object.id !== null) {
       message.id = Number(object.id);
     } else {
@@ -199,6 +269,16 @@ export const Game = {
       message.reveal_timeout = fromJsonTimestamp(object.reveal_timeout);
     } else {
       message.reveal_timeout = undefined;
+    }
+    if (object.status !== undefined && object.status !== null) {
+      message.status = gameStatusFromJSON(object.status);
+    } else {
+      message.status = 0;
+    }
+    if (object.winners !== undefined && object.winners !== null) {
+      for (const e of object.winners) {
+        message.winners.push(Winner.fromJSON(e));
+      }
     }
     if (object.beforeId !== undefined && object.beforeId !== null) {
       message.beforeId = Number(object.beforeId);
@@ -249,6 +329,15 @@ export const Game = {
         message.reveal_timeout !== undefined
           ? message.reveal_timeout.toISOString()
           : null);
+    message.status !== undefined &&
+      (obj.status = gameStatusToJSON(message.status));
+    if (message.winners) {
+      obj.winners = message.winners.map((e) =>
+        e ? Winner.toJSON(e) : undefined
+      );
+    } else {
+      obj.winners = [];
+    }
     message.beforeId !== undefined && (obj.beforeId = message.beforeId);
     message.afterId !== undefined && (obj.afterId = message.afterId);
     return obj;
@@ -258,6 +347,7 @@ export const Game = {
     const message = { ...baseGame } as Game;
     message.player_commits = [];
     message.player_reveals = [];
+    message.winners = [];
     if (object.id !== undefined && object.id !== null) {
       message.id = object.id;
     } else {
@@ -303,6 +393,16 @@ export const Game = {
     } else {
       message.reveal_timeout = undefined;
     }
+    if (object.status !== undefined && object.status !== null) {
+      message.status = object.status;
+    } else {
+      message.status = 0;
+    }
+    if (object.winners !== undefined && object.winners !== null) {
+      for (const e of object.winners) {
+        message.winners.push(Winner.fromPartial(e));
+      }
+    }
     if (object.beforeId !== undefined && object.beforeId !== null) {
       message.beforeId = object.beforeId;
     } else {
@@ -317,15 +417,15 @@ export const Game = {
   },
 };
 
-const baseNumberCommit: object = { commit: "", player_address: "" };
+const baseNumberCommit: object = { player_address: "", commit: "" };
 
 export const NumberCommit = {
   encode(message: NumberCommit, writer: Writer = Writer.create()): Writer {
-    if (message.commit !== "") {
-      writer.uint32(10).string(message.commit);
-    }
     if (message.player_address !== "") {
-      writer.uint32(18).string(message.player_address);
+      writer.uint32(10).string(message.player_address);
+    }
+    if (message.commit !== "") {
+      writer.uint32(18).string(message.commit);
     }
     if (message.created_at !== undefined) {
       Timestamp.encode(
@@ -344,10 +444,10 @@ export const NumberCommit = {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
-          message.commit = reader.string();
+          message.player_address = reader.string();
           break;
         case 2:
-          message.player_address = reader.string();
+          message.commit = reader.string();
           break;
         case 3:
           message.created_at = fromTimestamp(
@@ -364,15 +464,15 @@ export const NumberCommit = {
 
   fromJSON(object: any): NumberCommit {
     const message = { ...baseNumberCommit } as NumberCommit;
-    if (object.commit !== undefined && object.commit !== null) {
-      message.commit = String(object.commit);
-    } else {
-      message.commit = "";
-    }
     if (object.player_address !== undefined && object.player_address !== null) {
       message.player_address = String(object.player_address);
     } else {
       message.player_address = "";
+    }
+    if (object.commit !== undefined && object.commit !== null) {
+      message.commit = String(object.commit);
+    } else {
+      message.commit = "";
     }
     if (object.created_at !== undefined && object.created_at !== null) {
       message.created_at = fromJsonTimestamp(object.created_at);
@@ -384,9 +484,9 @@ export const NumberCommit = {
 
   toJSON(message: NumberCommit): unknown {
     const obj: any = {};
-    message.commit !== undefined && (obj.commit = message.commit);
     message.player_address !== undefined &&
       (obj.player_address = message.player_address);
+    message.commit !== undefined && (obj.commit = message.commit);
     message.created_at !== undefined &&
       (obj.created_at =
         message.created_at !== undefined
@@ -397,15 +497,15 @@ export const NumberCommit = {
 
   fromPartial(object: DeepPartial<NumberCommit>): NumberCommit {
     const message = { ...baseNumberCommit } as NumberCommit;
-    if (object.commit !== undefined && object.commit !== null) {
-      message.commit = object.commit;
-    } else {
-      message.commit = "";
-    }
     if (object.player_address !== undefined && object.player_address !== null) {
       message.player_address = object.player_address;
     } else {
       message.player_address = "";
+    }
+    if (object.commit !== undefined && object.commit !== null) {
+      message.commit = object.commit;
+    } else {
+      message.commit = "";
     }
     if (object.created_at !== undefined && object.created_at !== null) {
       message.created_at = object.created_at;
@@ -416,7 +516,13 @@ export const NumberCommit = {
   },
 };
 
-const baseNumberReveal: object = { player_address: "", number: 0, salt: "" };
+const baseNumberReveal: object = {
+  player_address: "",
+  number: 0,
+  salt: "",
+  is_winner: false,
+  proximity: 0,
+};
 
 export const NumberReveal = {
   encode(message: NumberReveal, writer: Writer = Writer.create()): Writer {
@@ -429,10 +535,16 @@ export const NumberReveal = {
     if (message.salt !== "") {
       writer.uint32(26).string(message.salt);
     }
+    if (message.is_winner === true) {
+      writer.uint32(32).bool(message.is_winner);
+    }
+    if (message.proximity !== 0) {
+      writer.uint32(40).uint64(message.proximity);
+    }
     if (message.created_at !== undefined) {
       Timestamp.encode(
         toTimestamp(message.created_at),
-        writer.uint32(34).fork()
+        writer.uint32(50).fork()
       ).ldelim();
     }
     return writer;
@@ -455,6 +567,12 @@ export const NumberReveal = {
           message.salt = reader.string();
           break;
         case 4:
+          message.is_winner = reader.bool();
+          break;
+        case 5:
+          message.proximity = longToNumber(reader.uint64() as Long);
+          break;
+        case 6:
           message.created_at = fromTimestamp(
             Timestamp.decode(reader, reader.uint32())
           );
@@ -484,6 +602,16 @@ export const NumberReveal = {
     } else {
       message.salt = "";
     }
+    if (object.is_winner !== undefined && object.is_winner !== null) {
+      message.is_winner = Boolean(object.is_winner);
+    } else {
+      message.is_winner = false;
+    }
+    if (object.proximity !== undefined && object.proximity !== null) {
+      message.proximity = Number(object.proximity);
+    } else {
+      message.proximity = 0;
+    }
     if (object.created_at !== undefined && object.created_at !== null) {
       message.created_at = fromJsonTimestamp(object.created_at);
     } else {
@@ -498,6 +626,8 @@ export const NumberReveal = {
       (obj.player_address = message.player_address);
     message.number !== undefined && (obj.number = message.number);
     message.salt !== undefined && (obj.salt = message.salt);
+    message.is_winner !== undefined && (obj.is_winner = message.is_winner);
+    message.proximity !== undefined && (obj.proximity = message.proximity);
     message.created_at !== undefined &&
       (obj.created_at =
         message.created_at !== undefined
@@ -523,10 +653,109 @@ export const NumberReveal = {
     } else {
       message.salt = "";
     }
+    if (object.is_winner !== undefined && object.is_winner !== null) {
+      message.is_winner = object.is_winner;
+    } else {
+      message.is_winner = false;
+    }
+    if (object.proximity !== undefined && object.proximity !== null) {
+      message.proximity = object.proximity;
+    } else {
+      message.proximity = 0;
+    }
     if (object.created_at !== undefined && object.created_at !== null) {
       message.created_at = object.created_at;
     } else {
       message.created_at = undefined;
+    }
+    return message;
+  },
+};
+
+const baseWinner: object = { player: "", proximity: 0, reward: "" };
+
+export const Winner = {
+  encode(message: Winner, writer: Writer = Writer.create()): Writer {
+    if (message.player !== "") {
+      writer.uint32(10).string(message.player);
+    }
+    if (message.proximity !== 0) {
+      writer.uint32(16).uint64(message.proximity);
+    }
+    if (message.reward !== "") {
+      writer.uint32(26).string(message.reward);
+    }
+    return writer;
+  },
+
+  decode(input: Reader | Uint8Array, length?: number): Winner {
+    const reader = input instanceof Uint8Array ? new Reader(input) : input;
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = { ...baseWinner } as Winner;
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1:
+          message.player = reader.string();
+          break;
+        case 2:
+          message.proximity = longToNumber(reader.uint64() as Long);
+          break;
+        case 3:
+          message.reward = reader.string();
+          break;
+        default:
+          reader.skipType(tag & 7);
+          break;
+      }
+    }
+    return message;
+  },
+
+  fromJSON(object: any): Winner {
+    const message = { ...baseWinner } as Winner;
+    if (object.player !== undefined && object.player !== null) {
+      message.player = String(object.player);
+    } else {
+      message.player = "";
+    }
+    if (object.proximity !== undefined && object.proximity !== null) {
+      message.proximity = Number(object.proximity);
+    } else {
+      message.proximity = 0;
+    }
+    if (object.reward !== undefined && object.reward !== null) {
+      message.reward = String(object.reward);
+    } else {
+      message.reward = "";
+    }
+    return message;
+  },
+
+  toJSON(message: Winner): unknown {
+    const obj: any = {};
+    message.player !== undefined && (obj.player = message.player);
+    message.proximity !== undefined && (obj.proximity = message.proximity);
+    message.reward !== undefined && (obj.reward = message.reward);
+    return obj;
+  },
+
+  fromPartial(object: DeepPartial<Winner>): Winner {
+    const message = { ...baseWinner } as Winner;
+    if (object.player !== undefined && object.player !== null) {
+      message.player = object.player;
+    } else {
+      message.player = "";
+    }
+    if (object.proximity !== undefined && object.proximity !== null) {
+      message.proximity = object.proximity;
+    } else {
+      message.proximity = 0;
+    }
+    if (object.reward !== undefined && object.reward !== null) {
+      message.reward = object.reward;
+    } else {
+      message.reward = "";
     }
     return message;
   },

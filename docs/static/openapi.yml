@@ -29475,26 +29475,20 @@ paths:
                       format: int64
                     creator:
                       type: string
-                      title: Address of the player who created the game
-                    secret_number:
-                      type: string
-                      format: int64
-                      title: The secret number that the players are guessing
                     player_commits:
                       type: array
                       items:
                         type: object
                         properties:
-                          commit:
-                            type: string
-                            title: 'hex encoded sha256 of "salt:number"'
                           player_address:
                             type: string
                             title: Address of the player who submitted the guess
+                          commit:
+                            type: string
+                            title: 'hex encoded sha256 of "salt:number"'
                           created_at:
                             type: string
                             format: date-time
-                      title: The guesses submitted by the players
                     player_reveals:
                       type: array
                       items:
@@ -29502,59 +29496,46 @@ paths:
                         properties:
                           player_address:
                             type: string
-                          number:
+                          proximity:
                             type: string
-                            format: int64
-                          salt:
-                            type: string
-                            title: hex encoded 32 bytes salt
+                            format: uint64
                           created_at:
                             type: string
                             format: date-time
-                      title: The reveals submitted by the players
                     reward:
-                      title: The reward for the winner
-                      type: object
-                      properties:
-                        denom:
-                          type: string
-                        amount:
-                          type: string
-                      description: >-
-                        Coin defines a token with a denomination and an amount.
-
-
-                        NOTE: The amount field is an Int which implements the
-                        custom method
-
-                        signatures required by gogoproto.
+                      type: string
                     entry_fee:
-                      type: object
-                      properties:
-                        denom:
-                          type: string
-                        amount:
-                          type: string
-                      description: >-
-                        Coin defines a token with a denomination and an amount.
-
-
-                        NOTE: The amount field is an Int which implements the
-                        custom method
-
-                        signatures required by gogoproto.
+                      type: string
                     commit_timeout:
                       type: string
                       format: date-time
                     reveal_timeout:
                       type: string
                       format: date-time
-                    beforeId:
+                    status:
                       type: string
-                      format: int64
-                    afterId:
-                      type: string
-                      format: int64
+                      enum:
+                        - GAME_STATUS_UNSPECIFIED
+                        - GAME_STATUS_COMMITTING
+                        - GAME_STATUS_REVEALING
+                        - GAME_STATUS_FINISHED
+                      default: GAME_STATUS_UNSPECIFIED
+                      title: GameStatus is the status of the game
+                    winners:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          player:
+                            type: string
+                          proximity:
+                            type: string
+                            format: uint64
+                          reward:
+                            type: string
+                  description: >-
+                    QueryGetGameResponse is the response type for the
+                    Query/GetGame RPC method.
               pagination:
                 type: object
                 properties:
@@ -29672,7 +29653,6 @@ paths:
             type: object
             properties:
               game:
-                description: game defines the game to be returned.
                 type: object
                 properties:
                   id:
@@ -29680,26 +29660,20 @@ paths:
                     format: int64
                   creator:
                     type: string
-                    title: Address of the player who created the game
-                  secret_number:
-                    type: string
-                    format: int64
-                    title: The secret number that the players are guessing
                   player_commits:
                     type: array
                     items:
                       type: object
                       properties:
-                        commit:
-                          type: string
-                          title: 'hex encoded sha256 of "salt:number"'
                         player_address:
                           type: string
                           title: Address of the player who submitted the guess
+                        commit:
+                          type: string
+                          title: 'hex encoded sha256 of "salt:number"'
                         created_at:
                           type: string
                           format: date-time
-                    title: The guesses submitted by the players
                   player_reveals:
                     type: array
                     items:
@@ -29707,59 +29681,46 @@ paths:
                       properties:
                         player_address:
                           type: string
-                        number:
+                        proximity:
                           type: string
-                          format: int64
-                        salt:
-                          type: string
-                          title: hex encoded 32 bytes salt
+                          format: uint64
                         created_at:
                           type: string
                           format: date-time
-                    title: The reveals submitted by the players
                   reward:
-                    title: The reward for the winner
-                    type: object
-                    properties:
-                      denom:
-                        type: string
-                      amount:
-                        type: string
-                    description: >-
-                      Coin defines a token with a denomination and an amount.
-
-
-                      NOTE: The amount field is an Int which implements the
-                      custom method
-
-                      signatures required by gogoproto.
+                    type: string
                   entry_fee:
-                    type: object
-                    properties:
-                      denom:
-                        type: string
-                      amount:
-                        type: string
-                    description: >-
-                      Coin defines a token with a denomination and an amount.
-
-
-                      NOTE: The amount field is an Int which implements the
-                      custom method
-
-                      signatures required by gogoproto.
+                    type: string
                   commit_timeout:
                     type: string
                     format: date-time
                   reveal_timeout:
                     type: string
                     format: date-time
-                  beforeId:
+                  status:
                     type: string
-                    format: int64
-                  afterId:
-                    type: string
-                    format: int64
+                    enum:
+                      - GAME_STATUS_UNSPECIFIED
+                      - GAME_STATUS_COMMITTING
+                      - GAME_STATUS_REVEALING
+                      - GAME_STATUS_FINISHED
+                    default: GAME_STATUS_UNSPECIFIED
+                    title: GameStatus is the status of the game
+                  winners:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        player:
+                          type: string
+                        proximity:
+                          type: string
+                          format: uint64
+                        reward:
+                          type: string
+                description: >-
+                  QueryGetGameResponse is the response type for the
+                  Query/GetGame RPC method.
             description: >-
               QueryGetGameResponse is the response type for the Query/GetGame
               RPC method.
@@ -49872,88 +49833,15 @@ definitions:
     title: >-
       SignatureCounts contains information about signature reporting for a
       number of blocks
-  zale144.whichnumber.whichnumber.Game:
-    type: object
-    properties:
-      id:
-        type: string
-        format: int64
-      creator:
-        type: string
-        title: Address of the player who created the game
-      secret_number:
-        type: string
-        format: int64
-        title: The secret number that the players are guessing
-      player_commits:
-        type: array
-        items:
-          type: object
-          properties:
-            commit:
-              type: string
-              title: 'hex encoded sha256 of "salt:number"'
-            player_address:
-              type: string
-              title: Address of the player who submitted the guess
-            created_at:
-              type: string
-              format: date-time
-        title: The guesses submitted by the players
-      player_reveals:
-        type: array
-        items:
-          type: object
-          properties:
-            player_address:
-              type: string
-            number:
-              type: string
-              format: int64
-            salt:
-              type: string
-              title: hex encoded 32 bytes salt
-            created_at:
-              type: string
-              format: date-time
-        title: The reveals submitted by the players
-      reward:
-        title: The reward for the winner
-        type: object
-        properties:
-          denom:
-            type: string
-          amount:
-            type: string
-        description: |-
-          Coin defines a token with a denomination and an amount.
-
-          NOTE: The amount field is an Int which implements the custom method
-          signatures required by gogoproto.
-      entry_fee:
-        type: object
-        properties:
-          denom:
-            type: string
-          amount:
-            type: string
-        description: |-
-          Coin defines a token with a denomination and an amount.
-
-          NOTE: The amount field is an Int which implements the custom method
-          signatures required by gogoproto.
-      commit_timeout:
-        type: string
-        format: date-time
-      reveal_timeout:
-        type: string
-        format: date-time
-      beforeId:
-        type: string
-        format: int64
-      afterId:
-        type: string
-        format: int64
+  zale144.whichnumber.whichnumber.GameStatus:
+    type: string
+    enum:
+      - GAME_STATUS_UNSPECIFIED
+      - GAME_STATUS_COMMITTING
+      - GAME_STATUS_REVEALING
+      - GAME_STATUS_FINISHED
+    default: GAME_STATUS_UNSPECIFIED
+    title: GameStatus is the status of the game
   zale144.whichnumber.whichnumber.MsgCommitNumberResponse:
     type: object
   zale144.whichnumber.whichnumber.MsgNewGameResponse:
@@ -49973,26 +49861,12 @@ definitions:
   zale144.whichnumber.whichnumber.NumberCommit:
     type: object
     properties:
-      commit:
-        type: string
-        title: 'hex encoded sha256 of "salt:number"'
       player_address:
         type: string
         title: Address of the player who submitted the guess
-      created_at:
+      commit:
         type: string
-        format: date-time
-  zale144.whichnumber.whichnumber.NumberReveal:
-    type: object
-    properties:
-      player_address:
-        type: string
-      number:
-        type: string
-        format: int64
-      salt:
-        type: string
-        title: hex encoded 32 bytes salt
+        title: 'hex encoded sha256 of "salt:number"'
       created_at:
         type: string
         format: date-time
@@ -50014,11 +49888,79 @@ definitions:
         type: string
         format: uint64
     description: Params defines the parameters for the module.
+  zale144.whichnumber.whichnumber.QueryGameResponse:
+    type: object
+    properties:
+      id:
+        type: string
+        format: int64
+      creator:
+        type: string
+      player_commits:
+        type: array
+        items:
+          type: object
+          properties:
+            player_address:
+              type: string
+              title: Address of the player who submitted the guess
+            commit:
+              type: string
+              title: 'hex encoded sha256 of "salt:number"'
+            created_at:
+              type: string
+              format: date-time
+      player_reveals:
+        type: array
+        items:
+          type: object
+          properties:
+            player_address:
+              type: string
+            proximity:
+              type: string
+              format: uint64
+            created_at:
+              type: string
+              format: date-time
+      reward:
+        type: string
+      entry_fee:
+        type: string
+      commit_timeout:
+        type: string
+        format: date-time
+      reveal_timeout:
+        type: string
+        format: date-time
+      status:
+        type: string
+        enum:
+          - GAME_STATUS_UNSPECIFIED
+          - GAME_STATUS_COMMITTING
+          - GAME_STATUS_REVEALING
+          - GAME_STATUS_FINISHED
+        default: GAME_STATUS_UNSPECIFIED
+        title: GameStatus is the status of the game
+      winners:
+        type: array
+        items:
+          type: object
+          properties:
+            player:
+              type: string
+            proximity:
+              type: string
+              format: uint64
+            reward:
+              type: string
+    description: >-
+      QueryGetGameResponse is the response type for the Query/GetGame RPC
+      method.
   zale144.whichnumber.whichnumber.QueryGetGameResponse:
     type: object
     properties:
       game:
-        description: game defines the game to be returned.
         type: object
         properties:
           id:
@@ -50026,26 +49968,20 @@ definitions:
             format: int64
           creator:
             type: string
-            title: Address of the player who created the game
-          secret_number:
-            type: string
-            format: int64
-            title: The secret number that the players are guessing
           player_commits:
             type: array
             items:
               type: object
               properties:
-                commit:
-                  type: string
-                  title: 'hex encoded sha256 of "salt:number"'
                 player_address:
                   type: string
                   title: Address of the player who submitted the guess
+                commit:
+                  type: string
+                  title: 'hex encoded sha256 of "salt:number"'
                 created_at:
                   type: string
                   format: date-time
-            title: The guesses submitted by the players
           player_reveals:
             type: array
             items:
@@ -50053,59 +49989,46 @@ definitions:
               properties:
                 player_address:
                   type: string
-                number:
+                proximity:
                   type: string
-                  format: int64
-                salt:
-                  type: string
-                  title: hex encoded 32 bytes salt
+                  format: uint64
                 created_at:
                   type: string
                   format: date-time
-            title: The reveals submitted by the players
           reward:
-            title: The reward for the winner
-            type: object
-            properties:
-              denom:
-                type: string
-              amount:
-                type: string
-            description: >-
-              Coin defines a token with a denomination and an amount.
-
-
-              NOTE: The amount field is an Int which implements the custom
-              method
-
-              signatures required by gogoproto.
+            type: string
           entry_fee:
-            type: object
-            properties:
-              denom:
-                type: string
-              amount:
-                type: string
-            description: >-
-              Coin defines a token with a denomination and an amount.
-
-
-              NOTE: The amount field is an Int which implements the custom
-              method
-
-              signatures required by gogoproto.
+            type: string
           commit_timeout:
             type: string
             format: date-time
           reveal_timeout:
             type: string
             format: date-time
-          beforeId:
+          status:
             type: string
-            format: int64
-          afterId:
-            type: string
-            format: int64
+            enum:
+              - GAME_STATUS_UNSPECIFIED
+              - GAME_STATUS_COMMITTING
+              - GAME_STATUS_REVEALING
+              - GAME_STATUS_FINISHED
+            default: GAME_STATUS_UNSPECIFIED
+            title: GameStatus is the status of the game
+          winners:
+            type: array
+            items:
+              type: object
+              properties:
+                player:
+                  type: string
+                proximity:
+                  type: string
+                  format: uint64
+                reward:
+                  type: string
+        description: >-
+          QueryGetGameResponse is the response type for the Query/GetGame RPC
+          method.
     description: >-
       QueryGetGameResponse is the response type for the Query/GetGame RPC
       method.
@@ -50122,26 +50045,20 @@ definitions:
               format: int64
             creator:
               type: string
-              title: Address of the player who created the game
-            secret_number:
-              type: string
-              format: int64
-              title: The secret number that the players are guessing
             player_commits:
               type: array
               items:
                 type: object
                 properties:
-                  commit:
-                    type: string
-                    title: 'hex encoded sha256 of "salt:number"'
                   player_address:
                     type: string
                     title: Address of the player who submitted the guess
+                  commit:
+                    type: string
+                    title: 'hex encoded sha256 of "salt:number"'
                   created_at:
                     type: string
                     format: date-time
-              title: The guesses submitted by the players
             player_reveals:
               type: array
               items:
@@ -50149,59 +50066,46 @@ definitions:
                 properties:
                   player_address:
                     type: string
-                  number:
+                  proximity:
                     type: string
-                    format: int64
-                  salt:
-                    type: string
-                    title: hex encoded 32 bytes salt
+                    format: uint64
                   created_at:
                     type: string
                     format: date-time
-              title: The reveals submitted by the players
             reward:
-              title: The reward for the winner
-              type: object
-              properties:
-                denom:
-                  type: string
-                amount:
-                  type: string
-              description: >-
-                Coin defines a token with a denomination and an amount.
-
-
-                NOTE: The amount field is an Int which implements the custom
-                method
-
-                signatures required by gogoproto.
+              type: string
             entry_fee:
-              type: object
-              properties:
-                denom:
-                  type: string
-                amount:
-                  type: string
-              description: >-
-                Coin defines a token with a denomination and an amount.
-
-
-                NOTE: The amount field is an Int which implements the custom
-                method
-
-                signatures required by gogoproto.
+              type: string
             commit_timeout:
               type: string
               format: date-time
             reveal_timeout:
               type: string
               format: date-time
-            beforeId:
+            status:
               type: string
-              format: int64
-            afterId:
-              type: string
-              format: int64
+              enum:
+                - GAME_STATUS_UNSPECIFIED
+                - GAME_STATUS_COMMITTING
+                - GAME_STATUS_REVEALING
+                - GAME_STATUS_FINISHED
+              default: GAME_STATUS_UNSPECIFIED
+              title: GameStatus is the status of the game
+            winners:
+              type: array
+              items:
+                type: object
+                properties:
+                  player:
+                    type: string
+                  proximity:
+                    type: string
+                    format: uint64
+                  reward:
+                    type: string
+          description: >-
+            QueryGetGameResponse is the response type for the Query/GetGame RPC
+            method.
       pagination:
         type: object
         properties:
@@ -50268,6 +50172,17 @@ definitions:
     title: >-
       QueryGetSystemInfoResponse is the response type for the
       Query/GetSystemInfo RPC method
+  zale144.whichnumber.whichnumber.QueryPlayerReveal:
+    type: object
+    properties:
+      player_address:
+        type: string
+      proximity:
+        type: string
+        format: uint64
+      created_at:
+        type: string
+        format: date-time
   zale144.whichnumber.whichnumber.SystemInfo:
     type: object
     properties:
@@ -50280,3 +50195,13 @@ definitions:
       fifoTailId:
         type: string
         format: int64
+  zale144.whichnumber.whichnumber.Winner:
+    type: object
+    properties:
+      player:
+        type: string
+      proximity:
+        type: string
+        format: uint64
+      reward:
+        type: string

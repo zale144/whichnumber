@@ -27,6 +27,14 @@ const (
 )
 
 const (
+	GameNewGas       = 10000
+	GameCommitGas    = 5000
+	GameRevealGas    = 5000
+	LoopIterationGas = 100
+	ParamsUpdateGas  = 1000
+)
+
+const (
 	NoFifoId int64 = -1
 )
 

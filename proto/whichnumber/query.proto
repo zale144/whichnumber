@@ -5,10 +5,12 @@ option go_package = "github.com/zale144/whichnumber/x/whichnumber/types";
 
 import "gogoproto/gogo.proto";
 import "google/api/annotations.proto";
+import "cosmos/base/v1beta1/coin.proto";
 import "cosmos/base/query/v1beta1/pagination.proto";
 import "whichnumber/params.proto";
 import "whichnumber/types.proto";
 import "whichnumber/system_info.proto";
+import "google/protobuf/timestamp.proto";
 // this line is used by starport scaffolding # 1
 
 
@@ -42,8 +44,7 @@ message QueryGetGameRequest {
 
 // QueryGetGameResponse is the response type for the Query/GetGame RPC method.
 message QueryGetGameResponse {
-  // game defines the game to be returned.
-  Game game = 1 [(gogoproto.nullable) = false];
+  QueryGameResponse game = 1 [(gogoproto.nullable) = false];
 }
 
 // QueryGamesRequest is the request type for the Query/Games RPC method.
@@ -53,8 +54,41 @@ message QueryGetGamesRequest {
 
 // QueryGamesResponse is the response type for the Query/Games RPC method.
 message QueryGetGamesResponse {
-  repeated Game games = 1 [(gogoproto.nullable) = false];
+  repeated QueryGameResponse games = 1;
   cosmos.base.query.v1beta1.PageResponse pagination = 2;
+}
+
+// QueryGetGameResponse is the response type for the Query/GetGame RPC method.
+message QueryGameResponse {
+  int64 id = 1;
+  string creator = 2;
+  repeated NumberCommit player_commits = 4;
+  repeated QueryPlayerReveal player_reveals = 5;
+
+  string reward = 6;
+  string entry_fee = 7;
+
+  google.protobuf.Timestamp commit_timeout = 8 [
+    (gogoproto.stdtime) = true,
+    (gogoproto.nullable) = false
+  ];
+  google.protobuf.Timestamp reveal_timeout = 9 [
+    (gogoproto.stdtime) = true,
+    (gogoproto.nullable) = true
+  ];
+
+  GameStatus status = 10;
+  repeated Winner winners = 11;
+}
+
+message QueryPlayerReveal {
+  string player_address = 1;
+  uint64 proximity = 2;
+
+  google.protobuf.Timestamp created_at = 3 [
+    (gogoproto.stdtime) = true,
+    (gogoproto.nullable) = false
+  ];
 }
 
 // QueryGetSystemRequest is the request type for the Query/GetSystem RPC method

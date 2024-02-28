@@ -25,13 +25,16 @@ message Game {
     (gogoproto.nullable) = false
   ];
 
-  int64 beforeId = 10 [(gogoproto.nullable) = true];
-  int64 afterId = 11 [(gogoproto.nullable) = true];
+  GameStatus status = 10;
+  repeated Winner winners = 11;
+
+  int64 beforeId = 12 [(gogoproto.nullable) = true];
+  int64 afterId = 13 [(gogoproto.nullable) = true];
 }
 
 message NumberCommit {
-  string commit = 1; // hex encoded sha256 of "salt:number"
-  string player_address = 2;  // Address of the player who submitted the guess
+  string player_address = 1;  // Address of the player who submitted the guess
+  string commit = 2; // hex encoded sha256 of "salt:number"
 
   google.protobuf.Timestamp created_at = 3 [
     (gogoproto.stdtime) = true,
@@ -43,9 +46,25 @@ message NumberReveal {
   string player_address = 1;
   int64 number = 2;
   string salt = 3; // hex encoded 32 bytes salt
+  bool is_winner = 4;
+  uint64 proximity = 5;
 
-  google.protobuf.Timestamp created_at = 4 [
+  google.protobuf.Timestamp created_at = 6 [
     (gogoproto.stdtime) = true,
     (gogoproto.nullable) = false
   ];
+}
+
+// GameStatus is the status of the game
+enum GameStatus {
+  GAME_STATUS_UNSPECIFIED = 0;
+  GAME_STATUS_COMMITTING = 1;
+  GAME_STATUS_REVEALING = 2;
+  GAME_STATUS_FINISHED = 3;
+}
+
+message Winner {
+  string player = 1;
+  uint64 proximity = 2;
+  string reward = 3;
 }

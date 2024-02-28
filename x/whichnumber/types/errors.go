@@ -27,4 +27,6 @@ var (
 	ErrInvalidRevealTimeout      = sdkerrors.Register(ModuleName, 1115, "invalid reveal timeout")
 	ErrInvalidMaxPlayers         = sdkerrors.Register(ModuleName, 1116, "invalid max players")
 	ErrInvalidMinDistanceToWin   = sdkerrors.Register(ModuleName, 1117, "invalid min distance to win")
+	ErrGameNotCommitting         = sdkerrors.Register(ModuleName, 1118, "game is not committing")
+	ErrGameFinished              = sdkerrors.Register(ModuleName, 1119, "game is already finished")
 )
