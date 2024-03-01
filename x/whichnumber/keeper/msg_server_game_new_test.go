@@ -53,6 +53,26 @@ func TestMsgServer_NewGame_InvalidEntryFee(t *testing.T) {
 	require.Equal(t, "id: 1; error: entry fee cannot be zero: game is invalid", err.Error())
 }
 
+func TestMsgServer_NewGame_MinimumReward(t *testing.T) {
+	msgServer, k, context, _, _ := setupMsgServerWithMock(t)
+	ctx := sdk.UnwrapSDKContext(context)
+
+	// update params, set min reward to 1000
+	params := k.GetStoredParams(ctx)
+	params.MinReward = sdk.NewCoin("stake", sdk.NewInt(1000))
+	k.SetParams(ctx, params)
+
+	// create a new game
+	_, err := msgServer.NewGame(context, &types.MsgNewGame{
+		Creator:      testutil.Bob,
+		SecretNumber: 42,
+		EntryFee:     sdk.NewCoin("stake", sdk.NewInt(100)),
+		Reward:       sdk.NewCoin("stake", sdk.NewInt(999)),
+	})
+	require.Error(t, err)
+	require.Equal(t, "reward: 999stake; minimum: 1000stake: invalid reward", err.Error())
+}
+
 func TestMsgServer_NewGame_InvalidReward(t *testing.T) {
 	msgServer, _, context, _, _ := setupMsgServerWithMock(t)
 
@@ -64,7 +84,8 @@ func TestMsgServer_NewGame_InvalidReward(t *testing.T) {
 		Reward:       sdk.NewCoin("stake", sdk.NewInt(0)),
 	})
 	require.Error(t, err)
-	require.Equal(t, "id: 1; error: reward cannot be zero: game is invalid", err.Error())
+	require.Equal(t, "reward: 0stake; minimum: 1000stake: invalid reward", err.Error())
+
 }
 
 func TestMsgServer_NewGame_InvalidCreator(t *testing.T) {
@@ -78,7 +99,7 @@ func TestMsgServer_NewGame_InvalidCreator(t *testing.T) {
 		Reward:       sdk.NewCoin("stake", sdk.NewInt(1000)),
 	})
 	require.Error(t, err)
-	require.Equal(t, "creator: invalid: invalid address", err.Error())
+	require.Equal(t, "failed to deposit reward", err.Error())
 }
 
 func TestMsgServer_NewGame_FailedToSendCoinsToModule(t *testing.T) {
@@ -95,7 +116,7 @@ func TestMsgServer_NewGame_FailedToSendCoinsToModule(t *testing.T) {
 		Reward:       sdk.NewCoin("stake", sdk.NewInt(1000)),
 	})
 	require.Error(t, err)
-	require.Equal(t, "error: : failed to send coins to module", err.Error())
+	require.Equal(t, "failed to deposit reward", err.Error())
 
 	// check if the game was created
 	ctx := sdk.UnwrapSDKContext(context)

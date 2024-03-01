@@ -1,6 +1,7 @@
 package types
 
 import (
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
 	"gopkg.in/yaml.v2"
 )
@@ -16,6 +17,8 @@ const (
 	DefaultMaxPlayersPerGame uint64 = 10
 	// DefaultMinDistanceToWin is the default min distance to win
 	DefaultMinDistanceToWin uint64 = 10
+	// DefaultMinReward is the default min reward
+	DefaultMinReward = "1000stake"
 )
 
 // ParamKeyTable the param key table for launch module
@@ -24,22 +27,28 @@ func ParamKeyTable() paramtypes.KeyTable {
 }
 
 // NewParams creates a new Params instance
-func NewParams(commitTimeout, revealTimeout, maxPlayers, minDistanceToWin uint64) Params {
+func NewParams(commitTimeout, revealTimeout, maxPlayers, minDistanceToWin uint64, minReward sdk.Coin) Params {
 	return Params{
 		CommitTimeout:     commitTimeout,
 		RevealTimeout:     revealTimeout,
 		MaxPlayersPerGame: maxPlayers,
 		MinDistanceToWin:  minDistanceToWin,
+		MinReward:         minReward,
 	}
 }
 
 // DefaultParams returns a default set of parameters
 func DefaultParams() Params {
+	defaultMinReward, err := sdk.ParseCoinNormalized(DefaultMinReward)
+	if err != nil {
+		panic(err)
+	}
 	return NewParams(
 		DefaultCommitTimeoutSec,
 		DefaultRevealTimeoutSec,
 		DefaultMaxPlayersPerGame,
 		DefaultMinDistanceToWin,
+		defaultMinReward,
 	)
 }
 
@@ -50,6 +59,7 @@ func (p *Params) ParamSetPairs() paramtypes.ParamSetPairs {
 		paramtypes.NewParamSetPair([]byte(ParamKeyRevealTimeout), &p.RevealTimeout, validateRevealTimeout),
 		paramtypes.NewParamSetPair([]byte(ParamKeyMaxPlayersPerGame), &p.MaxPlayersPerGame, validateMaxPlayersPerGame),
 		paramtypes.NewParamSetPair([]byte(ParamKeyMinDistanceToWin), &p.MinDistanceToWin, validateMinDistanceToWin),
+		paramtypes.NewParamSetPair([]byte(ParamKeyMinReward), &p.MinReward, validateMinReward),
 	}
 }
 
@@ -94,6 +104,13 @@ func validateMaxPlayersPerGame(maxPlayers any) error {
 func validateMinDistanceToWin(minDistanceToWin any) error {
 	if minDistanceToWin.(uint64) == 0 {
 		return ErrInvalidMinDistanceToWin
+	}
+	return nil
+}
+
+func validateMinReward(minReward any) error {
+	if minReward.(sdk.Coin).Amount.IsZero() || minReward.(sdk.Coin).Denom == "" {
+		return ErrInvalidReward
 	}
 	return nil
 }

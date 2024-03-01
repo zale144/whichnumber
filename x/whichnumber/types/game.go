@@ -4,7 +4,6 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"fmt"
-	"math"
 	"time"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -64,15 +63,4 @@ func (g *Game) Validate() error {
 	}
 
 	return nil
-}
-
-func (reveal *NumberReveal) HasWon(secretNumber int64, params Params) (won bool, proximity uint64) {
-	minGuess := secretNumber - int64(params.MinDistanceToWin)
-	maxGuess := secretNumber + int64(params.MinDistanceToWin)
-	if reveal.Number >= minGuess && reveal.Number <= maxGuess {
-		// calculate proximity to secret number
-		reveal.Proximity = uint64(math.Abs(float64(reveal.Number - secretNumber)))
-		reveal.IsWinner = true
-	}
-	return
 }

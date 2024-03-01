@@ -1,10 +1,12 @@
 package keeper
 
 import (
+	"fmt"
 	"strconv"
 
 	"github.com/cosmos/cosmos-sdk/store/prefix"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/zale144/whichnumber/x/whichnumber/types"
 )
 
@@ -36,9 +38,8 @@ func (k Keeper) GetStoredGames(ctx sdk.Context) (list []types.Game) {
 	return
 }
 
-func (k Keeper) IterateStoredGames(ctx sdk.Context, headId int64, cb func(game types.Game) (stop bool, nextId int64)) {
+func (k Keeper) IterateStoredGames(ctx sdk.Context, headId int64, cb func(game types.Game) (nextId int64)) {
 	gameId := headId
-	stop := false
 
 	for gameId != types.NoFifoId {
 		game, found := k.GetStoredGame(ctx, gameId)
@@ -46,10 +47,8 @@ func (k Keeper) IterateStoredGames(ctx sdk.Context, headId int64, cb func(game t
 			panic("Game not found")
 		}
 
-		stop, gameId = cb(game)
-		if stop {
-			break
-		}
+		gameId = cb(game)
+		// TODO: is there a case where the iteration should stop prematurely?
 	}
 }
 
@@ -64,26 +63,7 @@ func (k Keeper) RemoveStoredGame(ctx sdk.Context, id int64) {
 	store.Delete(types.StoredGameKey(strconv.FormatInt(id, 10)))
 }
 
-func (k Keeper) GetNumberCommit(game types.Game, player string) (*types.NumberCommit, bool) {
-	for _, commit := range game.PlayerCommits {
-		if commit.PlayerAddress == player {
-			return commit, true
-		}
-	}
-
-	return nil, false
-}
-
-func (k Keeper) GetNumberReveal(game types.Game, player string) (*types.NumberReveal, bool) {
-	for _, reveal := range game.PlayerReveals {
-		if reveal.PlayerAddress == player {
-			return reveal, true
-		}
-	}
-
-	return nil, false
-}
-func (k Keeper) RemoveFromFifo(ctx sdk.Context, game *types.Game, info *types.SystemInfo) {
+func (k Keeper) removeFromFifo(ctx sdk.Context, game *types.Game, info *types.SystemInfo) {
 	// Does it have a predecessor?
 	if game.BeforeId != types.NoFifoId {
 		beforeGame, found := k.GetStoredGame(ctx, game.BeforeId)
@@ -123,7 +103,7 @@ func (k Keeper) RemoveFromFifo(ctx sdk.Context, game *types.Game, info *types.Sy
 	game.AfterId = types.NoFifoId
 }
 
-func (k Keeper) SendToFifoTail(ctx sdk.Context, game *types.Game, info *types.SystemInfo) {
+func (k Keeper) sendToFifoTail(ctx sdk.Context, game *types.Game, info *types.SystemInfo) {
 	if info.FifoHeadId == types.NoFifoId && info.FifoTailId == types.NoFifoId {
 		game.BeforeId = types.NoFifoId
 		game.AfterId = types.NoFifoId
@@ -133,7 +113,7 @@ func (k Keeper) SendToFifoTail(ctx sdk.Context, game *types.Game, info *types.Sy
 		panic("Fifo should have both head and tail or none")
 	} else if info.FifoTailId != game.Id {
 		// Snip game out
-		k.RemoveFromFifo(ctx, game, info)
+		k.removeFromFifo(ctx, game, info)
 
 		// Now add to tail
 		currentTail, found := k.GetStoredGame(ctx, info.FifoTailId)
@@ -146,4 +126,34 @@ func (k Keeper) SendToFifoTail(ctx sdk.Context, game *types.Game, info *types.Sy
 		game.BeforeId = currentTail.Id
 		info.FifoTailId = game.Id
 	}
+}
+
+func (k Keeper) sendCoinsToPlayer(ctx sdk.Context, player string, coins sdk.Coin) error {
+	if !coins.IsPositive() {
+		return nil
+	}
+	creatorAddress, err := types.GetPlayerAddress(player)
+	if err != nil {
+		return fmt.Errorf("invalid creator address: %w", err)
+	}
+
+	if err := k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, creatorAddress, sdk.NewCoins(coins)); err != nil {
+		return fmt.Errorf("failed to send coins to player %s: %w", player, err)
+	}
+	return nil
+}
+
+func (k Keeper) sendCoinsToModule(ctx sdk.Context, player string, coins sdk.Coin) error {
+	if !coins.IsPositive() {
+		return nil
+	}
+	playerAddress, err := types.GetPlayerAddress(player)
+	if err != nil {
+		return sdkerrors.Wrapf(types.ErrFailedToSendCoinsToModule, "error: %s", err)
+	}
+
+	if err := k.bankKeeper.SendCoinsFromAccountToModule(ctx, playerAddress, types.ModuleName, sdk.NewCoins(coins)); err != nil {
+		return sdkerrors.Wrapf(types.ErrFailedToSendCoinsToModule, "error: %s", err)
+	}
+	return nil
 }

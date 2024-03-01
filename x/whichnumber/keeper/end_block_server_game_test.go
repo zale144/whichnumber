@@ -85,11 +85,13 @@ func TestKeeper_EndBlocker(t *testing.T) {
 	require.Equal(t, int64(39), game.PlayerReveals[0].Number)
 	require.Equal(t, uint64(3), game.PlayerReveals[0].Proximity)
 	require.Equal(t, 1, len(game.Winners))
-	require.Equal(t, game.Winners[0], &types.Winner{
+
+	expectWinner := &types.Winner{
 		Player:    testutil.Bob,
 		Proximity: 3,
 		Reward:    "1000stake",
-	})
+	}
+	require.Equal(t, expectWinner, game.Winners[0])
 
 	// compareEvents(t, ctx, game)
 }
@@ -191,9 +193,17 @@ func TestKeeper_EndBlocker_GameCommitting(t *testing.T) {
 	})
 	require.NoError(t, err)
 
+	// commit another number
+	_, err = msgServer.CommitNumber(context, &types.MsgCommitNumber{
+		Player: testutil.Charlie,
+		GameId: gameId,
+		Commit: "2aa150bd4875fae49b3b7daac782fb08eff71c2bb973dd3ad9d5ae2c97279c7d",
+	})
+	require.NoError(t, err)
+
 	game, found := keeper.GetStoredGame(ctx, gameId)
 	require.True(t, found)
-	require.Equal(t, 1, len(game.PlayerCommits))
+	require.Equal(t, 2, len(game.PlayerCommits))
 
 	// end the block
 	keeper.EndBlocker(ctx)
@@ -229,23 +239,16 @@ func setupMsgServerWithMock(t testing.TB) (types.MsgServer, keeper.Keeper, conte
 	ctrl := gomock.NewController(t)
 	bankMock := testutil.NewMockBankKeeper(ctrl)
 	bankMock.EXPECT().SendCoinsFromAccountToModule(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).Return(nil).AnyTimes()
-
-	k, ctx := testkeeper.WhichNumberKeeperWithMocks(t, bankMock)
-
-	genesis := types.DefaultGenesis()
-	genesis.Params.MaxPlayersPerGame = 3
-	whichnumber.InitGenesis(ctx, *k, *genesis)
-
-	server := keeper.NewMsgServerImpl(*k)
-	sdkCtx := sdk.WrapSDKContext(ctx)
-
-	return server, *k, sdkCtx, ctrl, bankMock
+	return setupMsgServer(t, bankMock, ctrl)
 }
 
 func setupMsgServerWithMockNoBankExpect(t testing.TB) (types.MsgServer, keeper.Keeper, context.Context, *gomock.Controller, *testutil.MockBankKeeper) {
 	ctrl := gomock.NewController(t)
 	bankMock := testutil.NewMockBankKeeper(ctrl)
+	return setupMsgServer(t, bankMock, ctrl)
+}
 
+func setupMsgServer(t testing.TB, bankMock *testutil.MockBankKeeper, ctrl *gomock.Controller) (types.MsgServer, keeper.Keeper, context.Context, *gomock.Controller, *testutil.MockBankKeeper) {
 	k, ctx := testkeeper.WhichNumberKeeperWithMocks(t, bankMock)
 
 	genesis := types.DefaultGenesis()

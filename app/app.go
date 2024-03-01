@@ -258,8 +258,6 @@ func New(
 	cdc := encodingConfig.Amino
 	interfaceRegistry := encodingConfig.InterfaceRegistry
 
-	baseAppOptions = append(baseAppOptions, baseapp.SetTrace(true))
-
 	bApp := baseapp.NewBaseApp(Name, logger, db, encodingConfig.TxConfig.TxDecoder(), baseAppOptions...)
 	bApp.SetCommitMultiStoreTracer(traceStore)
 	bApp.SetVersion(version.Version)
@@ -392,12 +390,15 @@ func New(
 	)
 	monitoringModule := monitoringp.NewAppModule(appCodec, app.MonitoringKeeper)
 
+	authority := authtypes.NewModuleAddress("gov")
+
 	app.WhichnumberKeeper = *whichnumbermodulekeeper.NewKeeper(
 		appCodec,
 		keys[whichnumbermoduletypes.StoreKey],
 		keys[whichnumbermoduletypes.MemStoreKey],
 		app.GetSubspace(whichnumbermoduletypes.ModuleName),
 		app.BankKeeper,
+		authority.String(),
 	)
 	whichnumberModule := whichnumbermodule.NewAppModule(appCodec, app.WhichnumberKeeper, app.AccountKeeper, app.BankKeeper)
 

@@ -48,6 +48,7 @@ func WhichNumberKeeperWithMocks(t testing.TB, bank *testutil.MockBankKeeper) (*k
 		memStoreKey,
 		paramsSubspace,
 		bank,
+		"authority",
 	)
 
 	header := tmproto.Header{

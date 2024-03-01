@@ -2,6 +2,7 @@ syntax = "proto3";
 package zale144.whichnumber.whichnumber;
 
 import "gogoproto/gogo.proto";
+import "cosmos/base/v1beta1/coin.proto";
 
 option go_package = "github.com/zale144/whichnumber/x/whichnumber/types";
 
@@ -12,4 +13,5 @@ message Params {
   uint64 reveal_timeout = 2; // in seconds
   uint64 max_players_per_game = 3;
   uint64 min_distance_to_win = 4;
+  cosmos.base.v1beta1.Coin min_reward = 5 [(gogoproto.nullable) = false];
 }

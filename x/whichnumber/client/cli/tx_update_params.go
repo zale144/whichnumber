@@ -7,16 +7,17 @@ import (
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/client/tx"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/spf13/cobra"
 	"github.com/zale144/whichnumber/x/whichnumber/types"
 )
 
 func CmdUpdateParams() *cobra.Command {
-	// Action: whichnumberd tx whichnumber update-params 10 20 5 10
+	// Action: whichnumberd tx whichnumber update-params 10 20 5 10 1000stake
 	cmd := &cobra.Command{
-		Use:   "update-params [commitTimeout] [revealTimeout] [maxPlayersPerGame] [minDistanceToWin]",
+		Use:   "update-params [commitTimeout] [revealTimeout] [maxPlayersPerGame] [minDistanceToWin] [minReward]",
 		Short: "Update a parameter",
-		Args:  cobra.ExactArgs(4),
+		Args:  cobra.ExactArgs(5),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := client.GetClientTxContext(cmd)
 			if err != nil {
@@ -43,6 +44,11 @@ func CmdUpdateParams() *cobra.Command {
 				return fmt.Errorf("couldn't parse minDistanceToWin %s into int64", args[3])
 			}
 
+			minReward, err := sdk.ParseCoinNormalized(args[4])
+			if err != nil {
+				return fmt.Errorf("couldn't parse minReward %s into int64", args[4])
+			}
+
 			msg := &types.MsgUpdateParams{
 				Authority: clientCtx.GetFromAddress().String(),
 				Params: types.Params{
@@ -50,6 +56,7 @@ func CmdUpdateParams() *cobra.Command {
 					RevealTimeout:     revealTimeout,
 					MaxPlayersPerGame: maxPlayersPerGame,
 					MinDistanceToWin:  minDistanceToWin,
+					MinReward:         minReward,
 				},
 			}
 

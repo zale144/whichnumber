@@ -8,6 +8,7 @@ import { EventGameRevealFinished } from "./module/types/whichnumber/event"
 import { EventGameEnd } from "./module/types/whichnumber/event"
 import { EventGameCreatorDeposit } from "./module/types/whichnumber/event"
 import { EventGamePlayerDeposit } from "./module/types/whichnumber/event"
+import { EventGameCreatorRefund } from "./module/types/whichnumber/event"
 import { EventParamsUpdated } from "./module/types/whichnumber/event"
 import { Params } from "./module/types/whichnumber/params"
 import { QueryGameResponse } from "./module/types/whichnumber/query"
@@ -19,7 +20,7 @@ import { NumberReveal } from "./module/types/whichnumber/types"
 import { Winner } from "./module/types/whichnumber/types"
 
 
-export { EventGameNew, EventGameNewCommit, EventGameNewReveal, EventGameCommitFinished, EventGameRevealFinished, EventGameEnd, EventGameCreatorDeposit, EventGamePlayerDeposit, EventParamsUpdated, Params, QueryGameResponse, QueryPlayerReveal, SystemInfo, Game, NumberCommit, NumberReveal, Winner };
+export { EventGameNew, EventGameNewCommit, EventGameNewReveal, EventGameCommitFinished, EventGameRevealFinished, EventGameEnd, EventGameCreatorDeposit, EventGamePlayerDeposit, EventGameCreatorRefund, EventParamsUpdated, Params, QueryGameResponse, QueryPlayerReveal, SystemInfo, Game, NumberCommit, NumberReveal, Winner };
 
 async function initTxClient(vuexGetters) {
 	return await txClient(vuexGetters['common/wallet/signer'], {
@@ -71,6 +72,7 @@ const getDefaultState = () => {
 						EventGameEnd: getStructure(EventGameEnd.fromPartial({})),
 						EventGameCreatorDeposit: getStructure(EventGameCreatorDeposit.fromPartial({})),
 						EventGamePlayerDeposit: getStructure(EventGamePlayerDeposit.fromPartial({})),
+						EventGameCreatorRefund: getStructure(EventGameCreatorRefund.fromPartial({})),
 						EventParamsUpdated: getStructure(EventParamsUpdated.fromPartial({})),
 						Params: getStructure(Params.fromPartial({})),
 						QueryGameResponse: getStructure(QueryGameResponse.fromPartial({})),
@@ -258,6 +260,21 @@ export default {
 		},
 		
 		
+		async sendMsgCommitNumber({ rootGetters }, { value, fee = [], memo = '' }) {
+			try {
+				const txClient=await initTxClient(rootGetters)
+				const msg = await txClient.msgCommitNumber(value)
+				const result = await txClient.signAndBroadcast([msg], {fee: { amount: fee, 
+	gas: "200000" }, memo})
+				return result
+			} catch (e) {
+				if (e == MissingWalletError) {
+					throw new Error('TxClient:MsgCommitNumber:Init Could not initialize signing client. Wallet is required.')
+				}else{
+					throw new Error('TxClient:MsgCommitNumber:Send Could not broadcast Tx: '+ e.message)
+				}
+			}
+		},
 		async sendMsgUpdateParams({ rootGetters }, { value, fee = [], memo = '' }) {
 			try {
 				const txClient=await initTxClient(rootGetters)
@@ -303,22 +320,20 @@ export default {
 				}
 			}
 		},
-		async sendMsgCommitNumber({ rootGetters }, { value, fee = [], memo = '' }) {
+		
+		async MsgCommitNumber({ rootGetters }, { value }) {
 			try {
 				const txClient=await initTxClient(rootGetters)
 				const msg = await txClient.msgCommitNumber(value)
-				const result = await txClient.signAndBroadcast([msg], {fee: { amount: fee, 
-	gas: "200000" }, memo})
-				return result
+				return msg
 			} catch (e) {
 				if (e == MissingWalletError) {
 					throw new Error('TxClient:MsgCommitNumber:Init Could not initialize signing client. Wallet is required.')
-				}else{
-					throw new Error('TxClient:MsgCommitNumber:Send Could not broadcast Tx: '+ e.message)
+				} else{
+					throw new Error('TxClient:MsgCommitNumber:Create Could not create message: ' + e.message)
 				}
 			}
 		},
-		
 		async MsgUpdateParams({ rootGetters }, { value }) {
 			try {
 				const txClient=await initTxClient(rootGetters)
@@ -355,19 +370,6 @@ export default {
 					throw new Error('TxClient:MsgNewGame:Init Could not initialize signing client. Wallet is required.')
 				} else{
 					throw new Error('TxClient:MsgNewGame:Create Could not create message: ' + e.message)
-				}
-			}
-		},
-		async MsgCommitNumber({ rootGetters }, { value }) {
-			try {
-				const txClient=await initTxClient(rootGetters)
-				const msg = await txClient.msgCommitNumber(value)
-				return msg
-			} catch (e) {
-				if (e == MissingWalletError) {
-					throw new Error('TxClient:MsgCommitNumber:Init Could not initialize signing client. Wallet is required.')
-				} else{
-					throw new Error('TxClient:MsgCommitNumber:Create Could not create message: ' + e.message)
 				}
 			}
 		},

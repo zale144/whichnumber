@@ -17,113 +17,123 @@ func (k Keeper) EndBlocker(ctx sdk.Context) {
 		return
 	}
 
-	// get the current block time
 	now := ctx.BlockTime()
-	// get the stored params
 	params := k.GetStoredParams(ctx)
 
-	// iterate over all active games
-	k.IterateStoredGames(ctx, systemInfo.FifoHeadId, func(game types.Game) (stop bool, nextId int64) {
-		// if the game has no players and the commit/reveal timeout has passed, delete the game and refund the creator
-		if len(game.PlayerCommits) == 0 && now.After(game.CommitTimeout) || len(game.PlayerReveals) == 0 && !game.RevealTimeout.IsZero() && now.After(game.RevealTimeout) {
-			// delete the game
-			k.RemoveFromFifo(ctx, &game, &systemInfo)
-			k.RemoveStoredGame(ctx, game.Id)
-
-			// refund the creator
-			if err := k.sendCoinsToPlayer(ctx, game.Creator, game.Reward); err != nil {
-				k.Logger(ctx).Error("Error refunding creator", "error", err)
-				return true, types.NoFifoId // stop iteration
-			}
-			return false, systemInfo.FifoHeadId
-		}
-
-		numPlayerCommits := uint64(len(game.PlayerCommits))
-
-		// if the commit timeout has passed or the game is full, start the reveal and wait for the next iteration
-		if (now.After(game.CommitTimeout) || numPlayerCommits == params.MaxPlayersPerGame) && game.Status == types.GameStatus_GAME_STATUS_COMMITTING {
-			game.RevealTimeout = ctx.BlockTime().Add(time.Second * time.Duration(params.RevealTimeout))
-			game.Status = types.GameStatus_GAME_STATUS_REVEALING
-
-			k.SetStoredGame(ctx, game)
-			// emit event for the reveal timeout
-			if err := ctx.EventManager().EmitTypedEvent(
-				&types.EventGameCommitFinished{
-					GameId:          strconv.FormatInt(game.Id, 10),
-					CommitTimeout:   game.RevealTimeout.Format(time.RFC3339),
-					NumberOfCommits: numPlayerCommits,
-				},
-			); err != nil {
-				k.Logger(ctx).Error("Error emitting commit finished event", "error", err)
-			}
-
-			return false, game.AfterId
-		}
-
-		// if we are either still committing, or the reveal timeout has not passed yet and
-		// not all players have revealed their number,
-		// wait for the next iteration
-		if game.Status == types.GameStatus_GAME_STATUS_COMMITTING ||
-			game.Status == types.GameStatus_GAME_STATUS_REVEALING &&
-				now.Before(game.RevealTimeout) &&
-				len(game.PlayerReveals) < len(game.PlayerCommits) {
-			return false, game.AfterId
-		}
-
-		game.Status = types.GameStatus_GAME_STATUS_FINISHED
-
-		// game has ended, delete it from the FIFO
-		k.RemoveFromFifo(ctx, &game, &systemInfo)
-
-		// calculate winners
-		totalProximity := k.selectWinners(&game)
-
-		// distribute rewards to winners based on proximity to secret number
-		if err := k.distributeRewards(ctx, &game, totalProximity); err != nil {
-			k.Logger(ctx).Error("Error distributing rewards", "error", err)
-			return true, types.NoFifoId // stop iteration
-		}
-
-		numLosers := len(game.PlayerReveals) - len(game.Winners)
-
-		// calculate how much to refund to game creator
-		losersEntryFees := sdk.NewCoin(game.EntryFee.Denom, game.EntryFee.Amount.Mul(sdk.NewInt(int64(numLosers))))
-
-		// send any remaining funds to game creator
-		if losersEntryFees.IsPositive() {
-			if err := k.sendCoinsToPlayer(ctx, game.Creator, losersEntryFees); err != nil {
-				k.Logger(ctx).Error("Error refunding creator", "error", err)
-				return true, types.NoFifoId // stop iteration
-			}
-		}
-
-		k.SetStoredGame(ctx, game)
-
-		// emit event for game end
-		if err := ctx.EventManager().EmitTypedEvent(
-			&types.EventGameEnd{
-				GameId:  strconv.FormatInt(game.Id, 10),
-				Winners: game.Winners,
-			},
-		); err != nil {
-			k.Logger(ctx).Error("Error emitting game end event", "error", err)
-		}
-		return false, systemInfo.FifoHeadId // continue iteration
-	})
-
-	// update system info
+	k.processGames(ctx, &systemInfo, now, params)
 	k.SetStoredSystemInfo(ctx, systemInfo)
 }
 
-func (k Keeper) selectWinners(game *types.Game) (totalProximity uint64) {
+func (k Keeper) processGames(ctx sdk.Context, systemInfo *types.SystemInfo, now time.Time, params types.Params) {
+	k.IterateStoredGames(ctx, systemInfo.FifoHeadId, func(game types.Game) int64 {
+		if k.shouldRemoveGame(game, now) {
+			k.removeGame(ctx, &game, systemInfo)
+			return systemInfo.FifoHeadId
+		}
+
+		if k.shouldStartReveal(game, now, params) {
+			k.startReveal(ctx, &game, now, params)
+			return game.AfterId
+		}
+
+		if k.shouldEndGame(game, now) {
+			k.endGame(ctx, &game, systemInfo)
+			return systemInfo.FifoHeadId
+		}
+
+		return game.AfterId
+	})
+}
+
+func (k Keeper) shouldRemoveGame(game types.Game, now time.Time) bool {
+	return len(game.PlayerCommits) == 0 && now.After(game.CommitTimeout) ||
+		len(game.PlayerReveals) == 0 && !game.RevealTimeout.IsZero() && now.After(game.RevealTimeout)
+}
+
+func (k Keeper) removeGame(ctx sdk.Context, game *types.Game, systemInfo *types.SystemInfo) {
+	k.removeFromFifo(ctx, game, systemInfo)
+	k.RemoveStoredGame(ctx, game.Id)
+	// refund creator
+	if err := k.refundCreator(ctx, game); err != nil {
+		k.Logger(ctx).Error("Error refunding creator", "error", err)
+	}
+}
+
+func (k Keeper) shouldStartReveal(game types.Game, now time.Time, params types.Params) bool {
+	return (now.After(game.CommitTimeout) || uint64(len(game.PlayerCommits)) == params.MaxPlayersPerGame) &&
+		game.Status == types.GameStatus_GAME_STATUS_COMMITTING
+}
+
+func (k Keeper) startReveal(ctx sdk.Context, game *types.Game, now time.Time, params types.Params) int64 {
+	game.RevealTimeout = now.Add(time.Second * time.Duration(params.RevealTimeout))
+	game.Status = types.GameStatus_GAME_STATUS_REVEALING
+	k.SetStoredGame(ctx, *game)
+	// emit event for the commit stage end
+	if err := ctx.EventManager().EmitTypedEvent(
+		&types.EventGameCommitFinished{
+			GameId:          strconv.FormatInt(game.Id, 10),
+			CommitTimeout:   game.RevealTimeout.Format(time.RFC3339),
+			NumberOfCommits: uint64(len(game.PlayerCommits)),
+		},
+	); err != nil {
+		k.Logger(ctx).Error("Error emitting commit finished event", "error", err)
+	}
+
+	return game.AfterId
+}
+
+func (k Keeper) shouldEndGame(game types.Game, now time.Time) bool {
+	return game.Status == types.GameStatus_GAME_STATUS_REVEALING &&
+		(now.After(game.RevealTimeout) || len(game.PlayerReveals) == len(game.PlayerCommits))
+}
+
+func (k Keeper) endGame(ctx sdk.Context, game *types.Game, systemInfo *types.SystemInfo) int64 {
+	// calculate winners
+	var totalProximity uint64
+	game.Winners, totalProximity = k.selectWinners(game)
+	game.Status = types.GameStatus_GAME_STATUS_FINISHED
+
+	// game has ended, delete it from the FIFO
+	k.removeFromFifo(ctx, game, systemInfo)
+
+	// distribute rewards to winners based on proximity to secret number
+	if err := k.distributeRewards(ctx, game, totalProximity); err != nil {
+		k.Logger(ctx).Error("Error distributing rewards", "error", err)
+		return systemInfo.FifoHeadId
+	}
+
+	k.SetStoredGame(ctx, *game)
+
+	// refund creator
+	if len(game.Winners) == 0 {
+		if err := k.refundCreator(ctx, game); err != nil {
+			k.Logger(ctx).Error("Error refunding creator", "error", err)
+			return systemInfo.FifoHeadId
+		}
+	}
+
+	// emit event for game end
+	if err := ctx.EventManager().EmitTypedEvent(
+		&types.EventGameEnd{
+			GameId:  strconv.FormatInt(game.Id, 10),
+			Winners: game.Winners,
+		},
+	); err != nil {
+		k.Logger(ctx).Error("Error emitting game end event", "error", err)
+	}
+	return systemInfo.FifoHeadId
+}
+
+func (k Keeper) selectWinners(game *types.Game) (winners []*types.Winner, totalProximity uint64) {
 	// iterate over guesses and add winners
 	for _, guess := range game.PlayerReveals {
 		if !guess.IsWinner {
 			continue
 		}
-		game.Winners = append(game.Winners, &types.Winner{
+		winners = append(winners, &types.Winner{
 			Player:    guess.PlayerAddress,
 			Proximity: guess.Proximity,
+			Reward:    "",
 		})
 		// add proximity to total
 		totalProximity += guess.Proximity
@@ -144,18 +154,41 @@ func (k Keeper) distributeRewards(ctx sdk.Context, game *types.Game, totalProxim
 		if err := k.sendCoinsToPlayer(ctx, game.Winners[i].Player, toSend); err != nil {
 			return fmt.Errorf("failed to distribute player reward: %w", err)
 		}
+
+		// emit event for distributing reward
+		if err := ctx.EventManager().EmitTypedEvent(
+			&types.EventGamePlayerReward{
+				GameId: strconv.FormatInt(game.Id, 10),
+				Player: game.Winners[i].Player,
+				Amount: reward.String(),
+			},
+		); err != nil {
+			k.Logger(ctx).Error("Error emitting game reward event", "error", err)
+		}
 	}
 	return nil
 }
 
-func (k Keeper) sendCoinsToPlayer(ctx sdk.Context, player string, coins sdk.Coin) error {
-	creatorAddress, err := types.GetPlayerAddress(player)
-	if err != nil {
-		return fmt.Errorf("invalid creator address: %w", err)
+func (k Keeper) refundCreator(ctx sdk.Context, game *types.Game) error {
+	// calculate how much to refund to game creator
+	numLosers := len(game.PlayerReveals) - len(game.Winners)
+	losersEntryFees := sdk.NewCoin(game.EntryFee.Denom, game.EntryFee.Amount.Mul(sdk.NewInt(int64(numLosers))))
+
+	// send any remaining funds to game creator
+	if err := k.sendCoinsToPlayer(ctx, game.Creator, losersEntryFees); err != nil {
+		k.Logger(ctx).Error("Error refunding creator", "error", err)
+		return fmt.Errorf("failed to refund creator: %w", err)
 	}
 
-	if err := k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, creatorAddress, sdk.NewCoins(coins)); err != nil {
-		return fmt.Errorf("failed to send coins to player %s: %w", player, err)
+	// emit event for refunding creator
+	if err := ctx.EventManager().EmitTypedEvent(
+		&types.EventGameCreatorRefund{
+			GameId:  strconv.FormatInt(game.Id, 10),
+			Creator: game.Creator,
+			Amount:  game.Reward.String(),
+		},
+	); err != nil {
+		k.Logger(ctx).Error("Error emitting game end event", "error", err)
 	}
 	return nil
 }

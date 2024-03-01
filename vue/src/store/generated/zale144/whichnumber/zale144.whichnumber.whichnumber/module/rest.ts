@@ -142,6 +142,14 @@ export interface WhichnumberParams {
 
   /** @format uint64 */
   min_distance_to_win?: string;
+
+  /**
+   * Coin defines a token with a denomination and an amount.
+   *
+   * NOTE: The amount field is an Int which implements the custom method
+   * signatures required by gogoproto.
+   */
+  min_reward?: V1Beta1Coin;
 }
 
 /**

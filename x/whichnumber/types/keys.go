@@ -24,6 +24,7 @@ const (
 	ParamKeyRevealTimeout     = "RevealTimeout"
 	ParamKeyMaxPlayersPerGame = "MaxPlayersPerGame"
 	ParamKeyMinDistanceToWin  = "MinDistanceToWin"
+	ParamKeyMinReward         = "MinReward"
 )
 
 const (

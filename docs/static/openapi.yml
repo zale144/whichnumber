@@ -29779,6 +29779,21 @@ paths:
                   min_distance_to_win:
                     type: string
                     format: uint64
+                  min_reward:
+                    type: object
+                    properties:
+                      denom:
+                        type: string
+                      amount:
+                        type: string
+                    description: >-
+                      Coin defines a token with a denomination and an amount.
+
+
+                      NOTE: The amount field is an Int which implements the
+                      custom method
+
+                      signatures required by gogoproto.
             description: >-
               QueryGetParamsResponse is response type for the Query/Params RPC
               method.
@@ -49887,6 +49902,18 @@ definitions:
       min_distance_to_win:
         type: string
         format: uint64
+      min_reward:
+        type: object
+        properties:
+          denom:
+            type: string
+          amount:
+            type: string
+        description: |-
+          Coin defines a token with a denomination and an amount.
+
+          NOTE: The amount field is an Int which implements the custom method
+          signatures required by gogoproto.
     description: Params defines the parameters for the module.
   zale144.whichnumber.whichnumber.QueryGameResponse:
     type: object
@@ -50153,6 +50180,21 @@ definitions:
           min_distance_to_win:
             type: string
             format: uint64
+          min_reward:
+            type: object
+            properties:
+              denom:
+                type: string
+              amount:
+                type: string
+            description: >-
+              Coin defines a token with a denomination and an amount.
+
+
+              NOTE: The amount field is an Int which implements the custom
+              method
+
+              signatures required by gogoproto.
     description: QueryGetParamsResponse is response type for the Query/Params RPC method.
   zale144.whichnumber.whichnumber.QueryGetSystemInfoResponse:
     type: object

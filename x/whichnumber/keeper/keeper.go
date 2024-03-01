@@ -16,6 +16,9 @@ type Keeper struct {
 	memKey       sdk.StoreKey
 	paramstore   paramtypes.Subspace
 	addressCodec codec.Codec
+	// authority is the address capable of executing a MsgUpdateParams and other authority-gated message.
+	// typically, this should be the x/gov module account.
+	authority string
 
 	bankKeeper types.BankKeeper
 }
@@ -26,6 +29,7 @@ func NewKeeper(
 	memKey sdk.StoreKey,
 	ps paramtypes.Subspace,
 	bankKeeper types.BankKeeper,
+	authority string,
 ) *Keeper {
 	// set KeyTable if it has not already been set
 	if !ps.HasKeyTable() {
@@ -38,7 +42,13 @@ func NewKeeper(
 		memKey:     memKey,
 		paramstore: ps,
 		bankKeeper: bankKeeper,
+		authority:  authority,
 	}
+}
+
+// GetAuthority returns the module's authority.
+func (k Keeper) GetAuthority() string {
+	return k.authority
 }
 
 func (k Keeper) Logger(ctx sdk.Context) log.Logger {

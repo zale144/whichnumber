@@ -67,6 +67,12 @@ export interface EventGamePlayerDeposit {
   amount: string;
 }
 
+export interface EventGameCreatorRefund {
+  game_id: string;
+  creator: string;
+  amount: string;
+}
+
 export interface EventParamsUpdated {
   params: Params | undefined;
 }
@@ -1039,6 +1045,104 @@ export const EventGamePlayerDeposit = {
       message.player = object.player;
     } else {
       message.player = "";
+    }
+    if (object.amount !== undefined && object.amount !== null) {
+      message.amount = object.amount;
+    } else {
+      message.amount = "";
+    }
+    return message;
+  },
+};
+
+const baseEventGameCreatorRefund: object = {
+  game_id: "",
+  creator: "",
+  amount: "",
+};
+
+export const EventGameCreatorRefund = {
+  encode(
+    message: EventGameCreatorRefund,
+    writer: Writer = Writer.create()
+  ): Writer {
+    if (message.game_id !== "") {
+      writer.uint32(10).string(message.game_id);
+    }
+    if (message.creator !== "") {
+      writer.uint32(18).string(message.creator);
+    }
+    if (message.amount !== "") {
+      writer.uint32(26).string(message.amount);
+    }
+    return writer;
+  },
+
+  decode(input: Reader | Uint8Array, length?: number): EventGameCreatorRefund {
+    const reader = input instanceof Uint8Array ? new Reader(input) : input;
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = { ...baseEventGameCreatorRefund } as EventGameCreatorRefund;
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1:
+          message.game_id = reader.string();
+          break;
+        case 2:
+          message.creator = reader.string();
+          break;
+        case 3:
+          message.amount = reader.string();
+          break;
+        default:
+          reader.skipType(tag & 7);
+          break;
+      }
+    }
+    return message;
+  },
+
+  fromJSON(object: any): EventGameCreatorRefund {
+    const message = { ...baseEventGameCreatorRefund } as EventGameCreatorRefund;
+    if (object.game_id !== undefined && object.game_id !== null) {
+      message.game_id = String(object.game_id);
+    } else {
+      message.game_id = "";
+    }
+    if (object.creator !== undefined && object.creator !== null) {
+      message.creator = String(object.creator);
+    } else {
+      message.creator = "";
+    }
+    if (object.amount !== undefined && object.amount !== null) {
+      message.amount = String(object.amount);
+    } else {
+      message.amount = "";
+    }
+    return message;
+  },
+
+  toJSON(message: EventGameCreatorRefund): unknown {
+    const obj: any = {};
+    message.game_id !== undefined && (obj.game_id = message.game_id);
+    message.creator !== undefined && (obj.creator = message.creator);
+    message.amount !== undefined && (obj.amount = message.amount);
+    return obj;
+  },
+
+  fromPartial(
+    object: DeepPartial<EventGameCreatorRefund>
+  ): EventGameCreatorRefund {
+    const message = { ...baseEventGameCreatorRefund } as EventGameCreatorRefund;
+    if (object.game_id !== undefined && object.game_id !== null) {
+      message.game_id = object.game_id;
+    } else {
+      message.game_id = "";
+    }
+    if (object.creator !== undefined && object.creator !== null) {
+      message.creator = object.creator;
+    } else {
+      message.creator = "";
     }
     if (object.amount !== undefined && object.amount !== null) {
       message.amount = object.amount;

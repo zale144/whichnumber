@@ -63,6 +63,18 @@ message EventGamePlayerDeposit {
   string amount = 3;
 }
 
+message EventGamePlayerReward {
+  string game_id = 1;
+  string player = 2;
+  string amount = 3;
+}
+
+message EventGameCreatorRefund {
+  string game_id = 1;
+  string creator = 2;
+  string amount = 3;
+}
+
 message EventParamsUpdated {
   Params params = 1 [(gogoproto.nullable) = false];
 }

@@ -14,74 +14,78 @@ func (m msgServer) NewGame(goCtx context.Context, newGame *types.MsgNewGame) (*t
 	ctx := sdk.UnwrapSDKContext(goCtx)
 	ctx.GasMeter().ConsumeGas(types.GameNewGas, "New game")
 
+	params := m.k.GetStoredParams(ctx)
+	// check if the reward is not less than the minimum amount
+	if newGame.Reward.IsLT(params.MinReward) {
+		return nil, sdkerrors.Wrapf(types.ErrInvalidReward, "reward: %s; minimum: %s", newGame.Reward, params.MinReward)
+	}
+
 	systemInfo, found := m.k.GetStoredSystemInfo(ctx)
 	if !found {
 		return nil, types.ErrCannotGetSystemInfo
 	}
 
-	params := m.k.GetStoredParams(ctx)
-	si := systemInfo
-	newIndex := si.NextId
-
-	blockTime := ctx.BlockTime()
 	game := types.Game{
-		Id:            newIndex,
+		Id:            systemInfo.NextId,
 		Creator:       newGame.Creator,
 		SecretNumber:  newGame.SecretNumber,
 		EntryFee:      newGame.EntryFee,
 		Reward:        newGame.Reward,
-		CommitTimeout: blockTime.Add(time.Second * time.Duration(params.CommitTimeout)),
+		CommitTimeout: ctx.BlockTime().Add(time.Second * time.Duration(params.CommitTimeout)),
 		Status:        types.GameStatus_GAME_STATUS_COMMITTING,
 		BeforeId:      types.NoFifoId,
 		AfterId:       types.NoFifoId,
 	}
 
 	if err := game.Validate(); err != nil {
-		return nil, sdkerrors.Wrapf(types.ErrInvalidGame, "id: %d; error: %s", newIndex, err)
+		return nil, sdkerrors.Wrapf(types.ErrInvalidGame, "id: %d; error: %s", game.Id, err)
 	}
 
-	creator, err := types.GetPlayerAddress(newGame.Creator)
-	if err != nil {
-		return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "creator: %s", newGame.Creator)
+	if err := m.k.sendCoinsToModule(ctx, newGame.Creator, game.Reward); err != nil {
+		m.k.Logger(ctx).Error("Error depositing reward", "error", err)
+		return nil, types.ErrGameFailedToDepositReward
 	}
 
-	// send the reward coins from the creator to the module
-	if err := m.k.bankKeeper.SendCoinsFromAccountToModule(ctx, creator, types.ModuleName, sdk.NewCoins(newGame.Reward)); err != nil {
-		return nil, sdkerrors.Wrapf(types.ErrFailedToSendCoinsToModule, "error: %s", err)
-	}
+	m.k.sendToFifoTail(ctx, &game, &systemInfo)
+	m.k.SetStoredGame(ctx, game)
+	m.emitNewGameEvents(ctx, game, params.MaxPlayersPerGame)
 
-	// emit event for the coins sent to the module
+	systemInfo.NextId++
+	m.k.SetStoredSystemInfo(ctx, systemInfo)
+
+	return &types.MsgNewGameResponse{
+		GameId: game.Id,
+	}, nil
+}
+
+func (m msgServer) emitNewGameEvents(ctx sdk.Context, game types.Game, maxPlayers uint64) {
+	// emit event for the creator making the reward deposit
+	// (even though the bank module emits an event about the transfer,
+	// we want to emit a custom one that provides more context)
+	gameId := strconv.FormatInt(game.Id, 10)
+
 	if err := ctx.EventManager().EmitTypedEvent(
 		&types.EventGameCreatorDeposit{
-			Creator: newGame.Creator,
-			GameId:  strconv.FormatInt(newIndex, 10),
-			Amount:  newGame.Reward.String(),
+			Creator: game.Creator,
+			GameId:  gameId,
+			Amount:  game.Reward.String(),
 		},
 	); err != nil {
 		m.k.Logger(ctx).Error("Error emitting creator deposit event", "error", err)
 	}
 
-	m.k.SendToFifoTail(ctx, &game, &systemInfo)
-	m.k.SetStoredGame(ctx, game)
-	systemInfo.NextId++
-	m.k.SetStoredSystemInfo(ctx, systemInfo)
-
 	// emit event for the new game
 	if err := ctx.EventManager().EmitTypedEvent(
 		&types.EventGameNew{
-			Creator:       newGame.Creator,
-			GameId:        strconv.FormatInt(newIndex, 10),
-			EntryFee:      newGame.EntryFee.String(),
-			MaxPlayers:    params.MaxPlayersPerGame,
-			Reward:        newGame.Reward.String(),
+			Creator:       game.Creator,
+			GameId:        gameId,
+			EntryFee:      game.EntryFee.String(),
+			MaxPlayers:    maxPlayers,
+			Reward:        game.Reward.String(),
 			CommitTimeout: game.CommitTimeout.Format(time.RFC3339),
 			Status:        types.GameStatus_GAME_STATUS_COMMITTING,
 		},
 	); err != nil {
 		m.k.Logger(ctx).Error("Error emitting new game event", "error", err)
 	}
-
-	return &types.MsgNewGameResponse{
-		GameId: newIndex,
-	}, nil
 }

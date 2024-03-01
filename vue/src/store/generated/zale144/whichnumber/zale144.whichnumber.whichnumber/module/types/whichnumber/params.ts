@@ -1,6 +1,7 @@
 /* eslint-disable */
 import * as Long from "long";
 import { util, configure, Writer, Reader } from "protobufjs/minimal";
+import { Coin } from "../cosmos/base/v1beta1/coin";
 
 export const protobufPackage = "zale144.whichnumber.whichnumber";
 
@@ -12,6 +13,7 @@ export interface Params {
   reveal_timeout: number;
   max_players_per_game: number;
   min_distance_to_win: number;
+  min_reward: Coin | undefined;
 }
 
 const baseParams: object = {
@@ -35,6 +37,9 @@ export const Params = {
     if (message.min_distance_to_win !== 0) {
       writer.uint32(32).uint64(message.min_distance_to_win);
     }
+    if (message.min_reward !== undefined) {
+      Coin.encode(message.min_reward, writer.uint32(42).fork()).ldelim();
+    }
     return writer;
   },
 
@@ -56,6 +61,9 @@ export const Params = {
           break;
         case 4:
           message.min_distance_to_win = longToNumber(reader.uint64() as Long);
+          break;
+        case 5:
+          message.min_reward = Coin.decode(reader, reader.uint32());
           break;
         default:
           reader.skipType(tag & 7);
@@ -93,6 +101,11 @@ export const Params = {
     } else {
       message.min_distance_to_win = 0;
     }
+    if (object.min_reward !== undefined && object.min_reward !== null) {
+      message.min_reward = Coin.fromJSON(object.min_reward);
+    } else {
+      message.min_reward = undefined;
+    }
     return message;
   },
 
@@ -106,6 +119,10 @@ export const Params = {
       (obj.max_players_per_game = message.max_players_per_game);
     message.min_distance_to_win !== undefined &&
       (obj.min_distance_to_win = message.min_distance_to_win);
+    message.min_reward !== undefined &&
+      (obj.min_reward = message.min_reward
+        ? Coin.toJSON(message.min_reward)
+        : undefined);
     return obj;
   },
 
@@ -136,6 +153,11 @@ export const Params = {
       message.min_distance_to_win = object.min_distance_to_win;
     } else {
       message.min_distance_to_win = 0;
+    }
+    if (object.min_reward !== undefined && object.min_reward !== null) {
+      message.min_reward = Coin.fromPartial(object.min_reward);
+    } else {
+      message.min_reward = undefined;
     }
     return message;
   },

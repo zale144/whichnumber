@@ -38,10 +38,11 @@ commit_timeout := 120
 reveal_timeout := 120
 max_players := 1
 min_distance_to_win := 12
+min_reward := 20000stake
 
 update-params:
 	@echo "Updating params"
-	whichnumberd tx whichnumber update-params ${commit_timeout} ${reveal_timeout} ${max_players} ${min_distance_to_win} --from bob --yes
+	whichnumberd tx whichnumber update-params ${commit_timeout} ${reveal_timeout} ${max_players} ${min_distance_to_win}  ${min_reward} --from bob --yes
 
 show-params:
 	@echo "Showing params"
